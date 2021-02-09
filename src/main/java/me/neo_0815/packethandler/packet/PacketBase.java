@@ -35,9 +35,10 @@ public abstract class PacketBase<B extends ByteBuffer> implements IByteBufferabl
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + '[' +
-				"data=" +
-				toMap() +
-				']';
+		return getClassName() + "[data=" + toMap() + "]";
+	}
+	
+	protected final String getClassName() {
+		return getClass().getSimpleName();
 	}
 }

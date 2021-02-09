@@ -1,14 +1,24 @@
 package me.neo_0815.packethandler.packet;
 
-import java.util.Arrays;
-
+import lombok.RequiredArgsConstructor;
 import me.neo_0815.packethandler.ByteBuffer;
 import me.neo_0815.packethandler.PacketMap;
 
+import java.util.Arrays;
+
+@RequiredArgsConstructor
 public final class UnknownPacket extends Packet {
 	public static final long ID = Long.MIN_VALUE;
 	
+	public final long id;
+	public final int length;
+	
 	public byte[] bytes = new byte[0];
+	
+	public UnknownPacket() {
+		id = ID;
+		length = -1;
+	}
 	
 	@Override
 	public void fromBuffer(final ByteBuffer buf) {
@@ -32,6 +42,6 @@ public final class UnknownPacket extends Packet {
 	
 	@Override
 	public String toString() {
-		return String.format("UnknownPacket[bytes=%s]", Arrays.toString(bytes));
+		return "UnknownPacket[id=" + id + ", length=" + length + ", bytes=" + Arrays.toString(bytes) + "]";
 	}
 }
