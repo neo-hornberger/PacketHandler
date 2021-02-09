@@ -60,6 +60,7 @@ public abstract class ListeningThread extends Thread {
 						
 						pip = connection().constructionMode().decodePacket(connection().byteBufferGenerator(), buf, connection().registry());
 						
+						// TODO use queue to evaluate packets (specific evaluation thread)
 						if(pip.id() < 0) {
 							if(pip.id() == UnknownPacket.ID)
 								connection().onUnknownPacketReceived((UnknownPacket) pip.packet());

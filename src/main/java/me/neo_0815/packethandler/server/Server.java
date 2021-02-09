@@ -192,7 +192,7 @@ public abstract class Server {
 	
 	@Synchronized("clients")
 	public final Set<UUID> getClients() {
-		return Collections.unmodifiableSet(clients.keySet());
+		return new HashSet<>(clients.keySet());
 	}
 	
 	@Synchronized("clients")
@@ -419,6 +419,7 @@ public abstract class Server {
 		return client != null ? getClient(client).registry() : properties.getPacketRegistry();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final <R extends AbstractPacketRegistry> R getPacketRegistry(final UUID client) {
 		return client != null ? getClient(client).getPacketRegistry() : (R) properties.getPacketRegistry();
 	}
