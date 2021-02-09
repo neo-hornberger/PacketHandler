@@ -15,11 +15,10 @@ import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 /**
@@ -45,10 +44,18 @@ public abstract class Server {
 	 * Constructs a new {@link Server} and bind it to the port 'port'.
 	 *
 	 * @param port the port the {@link Server} will bound to
-	 * @throws IOException if an I/O error occures when opening the {@link ServerSocket}
+	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
 	 */
 	public Server(final int port, final Properties properties) throws IOException {
-		socket = new ServerSocket(port);
+		this((InetAddress) null, port, properties);
+	}
+	
+	public Server(final String bindAddress, final int port, final Properties properties) throws IOException {
+		this(InetAddress.getByName(bindAddress), port, properties);
+	}
+	
+	public Server(final InetAddress bindAddress, final int port, final Properties properties) throws IOException {
+		socket = new ServerSocket(port, 0, bindAddress);
 		
 		this.properties = properties;
 		
@@ -90,33 +97,28 @@ public abstract class Server {
 			
 			@Override
 			public void run() {
-				while(!isInterrupted())
-					if(true) {
-						toRemove.clear();
+				while(!isInterrupted()) {
+					toRemove.clear();
+					
+					final long currentTime = System.currentTimeMillis();
+					
+					clients.forEach((uuid, client) -> {
+						final long currentDiff = currentTime - client.lastPacket;
 						
-						final long currentTime = System.currentTimeMillis();
+						if(currentDiff > 50_000) disconnectClient(uuid);
+						else if(currentDiff > 10_000) client.sendPacket(SystemPacketType.WAKE);
 						
-						for(final Entry<UUID, ClientConnection> e : clients.entrySet()) {
-							final long currentDiff = currentTime - e.getValue().lastPacket;
-							
-							if(currentDiff > 50_000) disconnectClient(e.getKey());
-							else if(currentDiff > 10_000) try {
-								e.getValue().sendPacket(SystemPacketType.WAKE);
-							}catch(final Exception ex) {
-								if(ex instanceof SocketException) ex.printStackTrace();
-							}
-							
-							if(e.getValue().isStopped()) toRemove.add(e.getKey());
-						}
-						
-						toRemove.forEach(clients::remove);
-						
-						try {
-							Thread.sleep(10_000); // TODO make user-controllable
-						}catch(final InterruptedException ex) {
-							ex.printStackTrace();
-						}
+						if(client.isStopped()) toRemove.add(uuid);
+					});
+					
+					toRemove.forEach(clients::remove);
+					
+					try {
+						Thread.sleep(10_000); // TODO make user-controllable
+					}catch(final InterruptedException ex) {
+						ex.printStackTrace();
 					}
+				}
 			}
 		};
 	}

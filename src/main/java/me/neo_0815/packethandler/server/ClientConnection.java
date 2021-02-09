@@ -6,6 +6,7 @@ import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
+import me.neo_0815.packethandler.packet.system.PacketConnect;
 import me.neo_0815.packethandler.packet.system.PacketDisconnect;
 import me.neo_0815.packethandler.packet.system.PacketWake;
 import me.neo_0815.packethandler.packet.system.SystemPacketType;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
 
-@EqualsAndHashCode()
+@EqualsAndHashCode(callSuper = false)
 public final class ClientConnection extends Connection {
 	private final Server server;
 	
@@ -48,7 +49,8 @@ public final class ClientConnection extends Connection {
 	@Override
 	protected void onSystemPacketReceived(final PacketBase<?> packet) {
 		if(packet instanceof PacketDisconnect) stop();
-		else if(packet instanceof PacketWake) lastPacket = System.currentTimeMillis();
+		else if(packet instanceof PacketWake || packet instanceof PacketConnect)
+			lastPacket = System.currentTimeMillis();
 		
 		server.onSystemPacketReceived(uuid, packet);
 	}
