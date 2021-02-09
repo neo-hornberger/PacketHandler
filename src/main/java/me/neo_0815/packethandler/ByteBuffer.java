@@ -97,6 +97,7 @@ public class ByteBuffer {
 	private final ByteList bytes = new ByteList();
 	@Getter
 	private int limit = -1, writeCursor = 0, readCursor = 0;
+	private int mark = 0;
 	
 	private ByteBufferInputStream in;
 	private ByteBufferOutputStream out;
@@ -1237,10 +1238,32 @@ public class ByteBuffer {
 		return Pattern.compile(readString(), readUnsignedVarInt());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <B extends ByteBuffer, T extends IByteBufferable<B>> T read(final T obj) {
 		obj.fromBuffer((B) this);
 		
 		return obj;
+	}
+	
+	public ByteBuffer skip(final int n) {
+		if(n < 0) throw new IllegalArgumentException("Cannot skip a negative amount of bytes");
+		
+		for(int i = 0; i < n; i++)
+			read();
+		
+		return this;
+	}
+	
+	public ByteBuffer mark() {
+		mark = readCursor;
+		
+		return this;
+	}
+	
+	public ByteBuffer reset() {
+		readCursor = mark;
+		
+		return this;
 	}
 	
 	/**

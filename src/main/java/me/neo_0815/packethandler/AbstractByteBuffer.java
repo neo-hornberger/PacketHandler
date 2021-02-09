@@ -419,6 +419,27 @@ public abstract class AbstractByteBuffer<B extends AbstractByteBuffer<B>> extend
 	}
 	
 	@Override
+	public B skip(final int n) {
+		super.skip(n);
+		
+		return INSTANCE;
+	}
+	
+	@Override
+	public B mark() {
+		super.mark();
+		
+		return INSTANCE;
+	}
+	
+	@Override
+	public B reset() {
+		super.reset();
+		
+		return INSTANCE;
+	}
+	
+	@Override
 	public B clear() {
 		super.clear();
 		
