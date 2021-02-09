@@ -16,7 +16,6 @@ public class TestPacketHandler {
 	public static final long START_TIME = System.currentTimeMillis();
 	
 	public static void main(final String[] args) throws IOException {
-		//		final PacketConstructionMode conMode = PacketConstructionMode.createMode(PacketConstructionMode.LENGTH_VARINT_CONTENT_ID_VARINT, PacketConstructionMode.ID_VARINT, PacketConstructionMode.CONTENT);
 		final PacketConstructionMode conMode = PacketConstructionMode.DEFAULT;
 		
 		final UnaryPacketRegistry<PacketRegistry> reg = new UnaryPacketRegistry<>(new PacketRegistry());
@@ -68,10 +67,10 @@ public class TestPacketHandler {
 				
 				sendPacket(client, TestPacketType.PACKET, PacketMap.of("name", "§" + packet.toMap().getOrDefault("name", "")));
 				
-				//				log("Server: Disconnecting %s...", client);
-				//				disconnectClient(client);
+				//log("Server: Disconnecting %s...", client);
+				//disconnectClient(client);
 				
-				//				changeClientUUID(client, UUID.randomUUID());
+				//changeClientUUID(client, UUID.randomUUID());
 			}
 		};
 		server.start();
@@ -82,10 +81,10 @@ public class TestPacketHandler {
 			protected void onPacketReceived(final PacketBase<?> packet, final long id) {
 				log("Client: %s -- %s", getUuid(), packet);
 				
-				//				log("Client: Disconnecting...");
-				//				disconnect();
+				//log("Client: Disconnecting...");
+				//disconnect();
 				
-				//				changeUUID(UUID.randomUUID());
+				//changeUUID(UUID.randomUUID());
 			}
 			
 			@Override
@@ -96,7 +95,7 @@ public class TestPacketHandler {
 		client.start();
 		
 		client.sendPacket(JSON.parseJSON("{\"name\":\"Neo\",\"age\":16}", TestPacketType.JSON.packetClass()), TestPacketType.JSON);
-		//		client.sendPacket(TestPacketType.PACKET, TestPacketType.PACKET);
+		//client.sendPacket(TestPacketType.PACKET, TestPacketType.PACKET);
 	}
 	
 	public static void log(final Object obj) {

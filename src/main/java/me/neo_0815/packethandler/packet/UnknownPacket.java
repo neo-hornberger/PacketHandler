@@ -16,8 +16,11 @@ public final class UnknownPacket extends Packet {
 	public byte[] bytes = new byte[0];
 	
 	public UnknownPacket() {
-		id = ID;
-		length = -1;
+		this(ID);
+	}
+	
+	public UnknownPacket(final long id) {
+		this(id, -1);
 	}
 	
 	@Override

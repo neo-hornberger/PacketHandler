@@ -39,13 +39,18 @@ public final class PacketConstructionMode {
 		return encodePacket0(generator, packet, id);
 	}
 	
-	private ByteBuffer encodePacket0(final ByteBufferGenerator<?> generator, final PacketBase<?> packet, final long id) {
+	private ByteBuffer encodePacket0(final ByteBufferGenerator<?> generator, final PacketBase<?> packet, final long packetId) {
 		final ByteBuffer buf = generator.generate(), content = generator.generate();
+		
+		long id = packetId;
 		int length = -1;
 		
 		content.write(packet);
 		
-		if(packet instanceof UnknownPacket) length = ((UnknownPacket) packet).length;
+		if(packet instanceof UnknownPacket) {
+			id = ((UnknownPacket) packet).id;
+			length = ((UnknownPacket) packet).length;
+		}
 		if(length < 0) length = content.getSize();
 		
 		encoding.encode(buf, content, packet, id, length);
@@ -54,11 +59,11 @@ public final class PacketConstructionMode {
 	}
 	
 	private ByteBuffer encodeUnknownPacket(final ByteBufferGenerator<?> generator, final ByteBuffer buf, final long id) {
-		final UnknownPacket packet = new UnknownPacket();
+		final UnknownPacket packet = new UnknownPacket(id);
 		
 		packet.fromMap(PacketMap.of("bytes", buf.toByteArray()));
 		
-		return encodePacket0(generator, packet, id);
+		return encodePacket0(generator, packet, UnknownPacket.ID);
 	}
 	
 	public PacketIdPair decodePacket(final ByteBufferGenerator<?> generator, final ByteBuffer buf, final AbstractPacketRegistry registry) {
@@ -99,6 +104,8 @@ public final class PacketConstructionMode {
 				buf.reset();
 				buf.transferTo(content);
 			}
+			
+			id = UnknownPacket.ID;
 		}
 		
 		content.read(packet);
