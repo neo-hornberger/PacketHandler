@@ -149,22 +149,29 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Interrupts the accepting thread of this {@link Server} and stops
-	 * listening in all {@link ClientConnection}s.
+	 * Interrupts the accepting thread of this {@link Server} and disconnects all {@link ClientConnection}s.
 	 *
 	 * @see Thread#interrupt()
-	 * @see ClientConnection#disconnect()
-	 * @see HashMap#clear()
+	 * @see #disconnectAll()
 	 */
 	public final void stop() {
 		acceptingThread.interrupt();
 		
 		if(properties.isClearingEnabled()) clearingThread.interrupt();
 		
-		synchronized(clients) {
-			clients.values().forEach(ClientConnection::disconnect);
-			clients.clear();
-		}
+		disconnectAll();
+	}
+	
+	/**
+	 * Disconnects all {@link ClientConnection}s from the server.
+	 *
+	 * @see ClientConnection#disconnect()
+	 * @see Map#clear()
+	 */
+	@Synchronized("clients")
+	public final void disconnectAll() {
+		clients.values().forEach(ClientConnection::disconnect);
+		clients.clear();
 	}
 	
 	public final void startEncryptionForClient(final UUID client) {
