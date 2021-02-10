@@ -41,7 +41,7 @@ public final class ClientConnection extends Connection {
 	
 	@Override
 	protected void onPacketReceived(final PacketBase<?> packet, final long id) {
-		lastPacket = System.currentTimeMillis();
+		resetLastPacket();
 		
 		server.onPacketReceived(uuid, packet, id);
 	}
@@ -49,8 +49,7 @@ public final class ClientConnection extends Connection {
 	@Override
 	protected void onSystemPacketReceived(final PacketBase<?> packet) {
 		if(packet instanceof PacketDisconnect) stop();
-		else if(packet instanceof PacketWake || packet instanceof PacketConnect)
-			lastPacket = System.currentTimeMillis();
+		else if(packet instanceof PacketWake || packet instanceof PacketConnect) resetLastPacket();
 		
 		server.onSystemPacketReceived(uuid, packet);
 	}
@@ -62,6 +61,12 @@ public final class ClientConnection extends Connection {
 	
 	@Override
 	protected void onMessageReceived(final String message) {
+		resetLastPacket();
+		
 		server.onMessageReceived(uuid, message);
+	}
+	
+	private void resetLastPacket() {
+		lastPacket = System.currentTimeMillis();
 	}
 }

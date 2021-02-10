@@ -114,15 +114,15 @@ public class VLQHelper {
 			return result;
 		}
 		
-		public static void encodeSLE(final ByteBuffer buf, long i) {
+		public static void encodeSLE(final ByteBuffer buf, long l) {
 			boolean more;
 			byte temp;
 			
 			do {
-				temp = (byte) (i & LOWER_7_MASK);
-				i >>= 7;
+				temp = (byte) (l & LOWER_7_MASK);
+				l >>= 7;
 				
-				more = !(i == 0 && (temp & HSEC_BIT_MASK) == 0 || i == -1 && (temp & HSEC_BIT_MASK) != 0);
+				more = !(l == 0 && (temp & HSEC_BIT_MASK) == 0 || l == -1 && (temp & HSEC_BIT_MASK) != 0);
 				if(more) temp |= SIGN_BIT_MASK;
 				
 				buf.write(temp);
