@@ -46,8 +46,6 @@ public class TestPacketHandlerDisconnect {
 				
 				if(packet instanceof TestJsonPacket) {
 					sendPacket(client, TestPacketType.EMPTY);
-					
-					disconnectAll();
 				}
 			}
 		};
@@ -64,6 +62,8 @@ public class TestPacketHandlerDisconnect {
 	
 	@SneakyThrows
 	private static void restartClient(final Properties prop) {
+		if(client != null) client.disconnect();
+		
 		client = new Client("localhost", 8080, prop) {
 			
 			@Override
