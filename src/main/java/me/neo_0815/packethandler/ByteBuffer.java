@@ -639,6 +639,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <B extends ByteBuffer> ByteBuffer write(final IByteBufferable<B> obj) {
 		obj.toBuffer((B) this);
 		
@@ -897,6 +898,7 @@ public class ByteBuffer {
 	 * @return the short read
 	 * @see #readUnsignedByte()
 	 */
+	@SuppressWarnings("IfStatementWithIdenticalBranches")
 	public short readShort() {
 		final short s;
 		

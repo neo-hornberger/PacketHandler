@@ -220,6 +220,7 @@ public abstract class AbstractPacketRegistry {
 		return getPacket(packetType, OUTGOING);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getIncomingPackets(final long[] ids) {
 		final Supplier<? extends PacketBase<?>>[] packets = new Supplier[ids.length];
 		
@@ -229,6 +230,7 @@ public abstract class AbstractPacketRegistry {
 		return packets;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getOutgoingPackets(final long[] ids) {
 		System.out.println(Arrays.stream(ids).<Supplier<? extends PacketBase<?>>>mapToObj(this::getOutgoingPacket).toArray(i -> new Supplier[ids.length]).length);
 		
@@ -240,6 +242,7 @@ public abstract class AbstractPacketRegistry {
 		return packets;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getIncomingPackets(@NonNull final IPacketFactory[] packetFactories) {
 		final Supplier<? extends PacketBase<?>>[] packets = new Supplier[packetFactories.length];
 		
@@ -249,6 +252,7 @@ public abstract class AbstractPacketRegistry {
 		return packets;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getOutgoingPackets(@NonNull final IPacketFactory[] packetFactories) {
 		System.out.println(Arrays.stream(packetFactories).<Supplier<? extends PacketBase<?>>>map(this::getOutgoingPacket).toArray(i -> new Supplier[packetFactories.length]).length);
 		
@@ -260,6 +264,7 @@ public abstract class AbstractPacketRegistry {
 		return packets;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getIncomingPackets(@NonNull final IPacketType[] packetTypes) {
 		final Supplier<? extends PacketBase<?>>[] packets = new Supplier[packetTypes.length];
 		
@@ -269,6 +274,7 @@ public abstract class AbstractPacketRegistry {
 		return packets;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final Supplier<? extends PacketBase<?>>[] getOutgoingPackets(@NonNull final IPacketType[] packetTypes) {
 		final Supplier<? extends PacketBase<?>>[] packets = new Supplier[packetTypes.length];
 		

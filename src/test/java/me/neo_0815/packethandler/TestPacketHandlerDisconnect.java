@@ -55,7 +55,7 @@ public class TestPacketHandlerDisconnect {
 		
 		client.sendPacket(TestPacketType.JSON);
 		
-		sleep(500);
+		sleep(100);
 		
 		client.sendPacket(TestPacketType.PACKET);
 		client.sendPacket(TestPacketType.PACKET);
