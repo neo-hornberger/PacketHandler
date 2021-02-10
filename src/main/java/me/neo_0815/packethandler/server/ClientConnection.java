@@ -30,7 +30,7 @@ public final class ClientConnection extends Connection {
 		this.server = server;
 		this.uuid = uuid;
 		
-		initListeningThread(client);
+		initThreads(client);
 	}
 	
 	protected void changeUUID(final UUID uuid) {

@@ -58,6 +58,10 @@ public class TestPacketHandlerDisconnect {
 		sleep(500);
 		
 		client.sendPacket(TestPacketType.PACKET);
+		client.sendPacket(TestPacketType.PACKET);
+		client.sendPacket(TestPacketType.PACKET);
+		client.sendPacket(TestPacketType.PACKET);
+		client.sendPacket(TestPacketType.PACKET);
 	}
 	
 	@SneakyThrows

@@ -92,7 +92,7 @@ public abstract class Client extends Connection {
 	
 	private void init() throws IOException {
 		setOut(socket.getOutputStream());
-		initListeningThread(socket);
+		initThreads(socket);
 	}
 	
 	public final void changeUUID(final UUID uuid) {

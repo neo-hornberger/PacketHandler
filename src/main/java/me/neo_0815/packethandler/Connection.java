@@ -1,5 +1,8 @@
 package me.neo_0815.packethandler;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import me.neo_0815.encryption.Encryption;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
@@ -9,7 +12,6 @@ import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
@@ -26,20 +28,24 @@ public abstract class Connection {
 	private OutputStream out;
 	private ListeningThread listeningThread;
 	
+	@Getter(AccessLevel.PACKAGE)
+	@Accessors(fluent = true)
+	private PacketEvalQueueThread packetEvalThread;
+	
 	private boolean stopped = false;
 	
 	protected Connection(final Properties properties) {
 		this.properties = properties;
 	}
 	
-	protected final void setOut(final OutputStream out) {
-		if(this.out != null) throw new IllegalStateException("OutputStream has already been set");
+	public Connection(final OutputStream out, final Properties properties) {
+		this(properties);
 		
 		this.out = out;
 	}
 	
-	public Connection(final OutputStream out, final Properties properties) {
-		this(properties);
+	protected final void setOut(final OutputStream out) {
+		if(this.out != null) throw new IllegalStateException("OutputStream has already been set");
 		
 		this.out = out;
 	}
@@ -161,60 +167,52 @@ public abstract class Connection {
 	}
 	
 	/**
-	 * Initializes the {@link ListeningThread} with the {@link Socket} 'socket'.
+	 * Initializes the {@link ListeningThread} and the {@link PacketEvalQueueThread} with the {@link Socket} 'socket'.
 	 *
 	 * @param socket the {@link Socket} which will be used to construct the
-	 *               {@link ListeningThread}
-	 * @throws IOException if an I/O error occures
+	 *               {@link ListeningThread} and the {@link PacketEvalQueueThread}
+	 * @throws IOException if an I/O error occurs
 	 */
-	protected final void initListeningThread(final Socket socket) throws IOException {
-		initListeningThread0(new ListeningThread(socket) {
+	protected final void initThreads(final Socket socket) throws IOException {
+		if(listeningThread != null || packetEvalThread != null) return;
+		
+		listeningThread = new ListeningThread(socket) {
 			
 			@Override
 			protected Connection connection() {
 				return INSTANCE;
 			}
-		});
-	}
-	
-	/**
-	 * Initializes the {@link ListeningThread} with the {@link InputStream}
-	 * 'in'.
-	 *
-	 * @param in the {@link InputStream} which will be used to construct the
-	 *           {@link ListeningThread}
-	 */
-	protected final void initListeningThread(final InputStream in) {
-		initListeningThread0(new ListeningThread(in) {
+		};
+		packetEvalThread = new PacketEvalQueueThread(socket) {
 			
 			@Override
 			protected Connection connection() {
 				return INSTANCE;
 			}
-		});
-	}
-	
-	private void initListeningThread0(final ListeningThread listeningThread) {
-		if(this.listeningThread == null) this.listeningThread = listeningThread;
+		};
 	}
 	
 	/**
-	 * Starts the {@link ListeningThread}.
+	 * Starts the {@link ListeningThread} and the {@link PacketEvalQueueThread}.
 	 *
 	 * @see Thread#start()
 	 */
 	public final void start() {
-		if(listeningThread != null) listeningThread.start();
+		if(listeningThread != null && packetEvalThread != null) {
+			listeningThread.start();
+			packetEvalThread.start();
+		}
 	}
 	
 	/**
-	 * Interrupts the {@link ListeningThread}.
+	 * Interrupts the {@link ListeningThread} and the {@link PacketEvalQueueThread}.
 	 *
 	 * @see Thread#interrupt()
 	 */
 	public final void stop() {
-		if(listeningThread != null) {
+		if(listeningThread != null && packetEvalThread != null) {
 			listeningThread.interrupt();
+			packetEvalThread.interrupt();
 			
 			try {
 				out.close();
@@ -251,6 +249,7 @@ public abstract class Connection {
 		return properties.getPacketRegistry();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public final <R extends AbstractPacketRegistry> R getPacketRegistry() {
 		return (R) registry();
 	}

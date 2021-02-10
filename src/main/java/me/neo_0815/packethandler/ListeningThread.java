@@ -3,8 +3,6 @@ package me.neo_0815.packethandler;
 import me.neo_0815.packethandler.PacketConstructionMode.PacketIdPair;
 import me.neo_0815.packethandler.client.Client;
 import me.neo_0815.packethandler.packet.Packet;
-import me.neo_0815.packethandler.packet.UnknownPacket;
-import me.neo_0815.packethandler.packet.system.PacketPrimitiveMessage;
 import me.neo_0815.packethandler.server.ClientConnection;
 
 import java.io.IOException;
@@ -35,18 +33,6 @@ public abstract class ListeningThread extends Thread {
 		setName("Listening-Thread(" + threadName() + ") -- " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 	}
 	
-	/**
-	 * Constructs the {@link ListeningThread} with the {@link InputStream} 'in'.
-	 *
-	 * @param in the {@link InputStream} that will be used to construct this
-	 *           {@link ListeningThread}
-	 */
-	public ListeningThread(final InputStream in) {
-		this.in = in;
-		
-		setName("Listening-Thread(" + threadName() + ")");
-	}
-	
 	@Override
 	public final void run() {
 		while(!isInterrupted())
@@ -60,14 +46,7 @@ public abstract class ListeningThread extends Thread {
 						
 						pip = connection().constructionMode().decodePacket(connection().byteBufferGenerator(), buf, connection().registry());
 						
-						// TODO use queue to evaluate packets (specific evaluation thread)
-						if(pip.id() < 0) {
-							if(pip.id() == UnknownPacket.ID)
-								connection().onUnknownPacketReceived((UnknownPacket) pip.packet());
-							else if(pip.packet() instanceof PacketPrimitiveMessage)
-								connection().onMessageReceived(((PacketPrimitiveMessage) pip.packet()).message);
-							else connection().onSystemPacketReceived(pip.packet());
-						}else connection().onPacketReceived(pip.packet(), pip.id());
+						connection().packetEvalThread().packetQueue.offer(pip);
 					}
 				}
 			}catch(final IOException e) {
