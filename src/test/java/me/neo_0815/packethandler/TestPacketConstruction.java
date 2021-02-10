@@ -16,8 +16,8 @@ public class TestPacketConstruction {
 		
 		pcm = PacketConstructionMode.DEFAULT;
 		//pcm = new PacketConstructionMode(
-		//		new EncodingStrategy().length((buf, length, id) -> buf.writeUnsignedVarInt(length + PacketConstructionMode.calcVarNumberLength(id))).id(ByteBuffer::writeVarLong).content(),
-		//		new DecodingStrategy().length(ByteBuffer::readUnsignedVarInt).id(ByteBuffer::readVarLong).modifyLength(DecodingStrategy.ModifyLengthIdDecoding.ID_VARNUM).content()
+		//		new PacketConstructionMode.EncodingStrategy().length((buf, length, id) -> buf.writeUnsignedVarInt(length + PacketConstructionMode.calcSVarNumLength(id))).id(ByteBuffer::writeVarLong).content(),
+		//		new PacketConstructionMode.DecodingStrategy().length(ByteBuffer::readUnsignedVarInt).id(ByteBuffer::readVarLong).modifyLength(PacketConstructionMode.DecodingStrategy.ModifyLengthIdDecoding.ID_SVARNUM).content()
 		//);
 		
 		final ByteBufferGenerator<ByteBuffer> bbg = ByteBufferGenerator.DEFAULT_GENERATOR;
@@ -28,8 +28,8 @@ public class TestPacketConstruction {
 		//buf = pcm.encodePacket(bbg, 0, pm, reg);
 		//buf = pcm.encodePacket(bbg, -3, pm, reg);
 		//buf = pcm.encodePacket(bbg, new PacketWake(), -3, reg);
-		//buf = new ByteBuffer().writeInt(42).writeInt(300).writeString("Hello World!").writeInt(42);
-		buf = new ByteBuffer().writeLong(42).writeInt(300).writeString("Hello World!").writeInt(42);
+		buf = new ByteBuffer().writeInt(42).writeInt(300).writeString("Hello World!").writeInt(42);
+		//buf = new ByteBuffer().writeLong(42).writeInt(300).writeString("Hello World!").writeInt(42);
 		
 		System.out.println(buf);
 		

@@ -7,6 +7,7 @@ import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -74,6 +75,7 @@ public final class PacketConstructionMode {
 		int length = -1;
 		
 		try {
+			decodingLoop:
 			for(final DecodingStrategy.DecodingFunction<?> function : decoding) {
 				buf.mark();
 				
@@ -88,6 +90,11 @@ public final class PacketConstructionMode {
 					case CONTENT:
 						function.decode(buf, content, id, length);
 						break;
+					case BOOL:
+						if((boolean) function.decode(buf, content, id, length)) break;
+						
+						unknownPacket = true;
+						break decodingLoop;
 				}
 			}
 		}catch(final IllegalStateException e) {
@@ -113,7 +120,7 @@ public final class PacketConstructionMode {
 		return new PacketIdPair(packet, id);
 	}
 	
-	public static int calcVarNumberLength(long vl) {
+	public static int calcUVarNumLength(long vl) {
 		int length = 0;
 		
 		do {
@@ -121,6 +128,20 @@ public final class PacketConstructionMode {
 			
 			length++;
 		}while(vl != 0);
+		
+		return length;
+	}
+	
+	public static int calcSVarNumLength(long vl) {
+		int length = 0;
+		byte temp;
+		
+		do {
+			temp = (byte) (vl & 0b01111111);
+			vl >>= 7;
+			
+			length++;
+		}while(!(vl == 0 && (temp & 0b01000000) == 0 || vl == -1 && (temp & 0b01000000) != 0));
 		
 		return length;
 	}
@@ -147,32 +168,44 @@ public final class PacketConstructionMode {
 			return id(IdEncoding.DEFAULT);
 		}
 		
-		public EncodingStrategy id(final IdEncoding consumer) {
-			return add(consumer);
+		public EncodingStrategy id(final IdEncoding encoding) {
+			return add(encoding);
 		}
 		
 		public EncodingStrategy length() {
 			return length(LengthEncoding.DEFAULT);
 		}
 		
-		public EncodingStrategy length(final LengthEncoding consumer) {
-			return add(consumer);
+		public EncodingStrategy length(final LengthEncoding encoding) {
+			return add(encoding);
 		}
 		
-		public EncodingStrategy length(final LengthIdEncoding consumer) {
-			return add(consumer);
+		public EncodingStrategy length(final LengthIdEncoding encoding) {
+			return add(encoding);
 		}
 		
 		public EncodingStrategy content() {
 			return content(ContentEncoding.DEFAULT);
 		}
 		
-		public EncodingStrategy content(final ContentEncoding consumer) {
-			return add(consumer);
+		public EncodingStrategy content(final ContentEncoding encoding) {
+			return add(encoding);
 		}
 		
-		public EncodingStrategy content(final ContentIdEncoding consumer) {
-			return add(consumer);
+		public EncodingStrategy content(final ContentIdEncoding encoding) {
+			return add(encoding);
+		}
+		
+		public EncodingStrategy bytes(final int n) {
+			return bytes(new byte[n]);
+		}
+		
+		public EncodingStrategy bytes(final byte[] bytes) {
+			return bytes(BytesEncoding.bytes(bytes));
+		}
+		
+		public EncodingStrategy bytes(final BytesEncoding encoding) {
+			return add(encoding);
 		}
 		
 		@FunctionalInterface
@@ -229,7 +262,8 @@ public final class PacketConstructionMode {
 			
 			LengthIdEncoding ID_INT = (buf, length, id) -> buf.writeInt(length + 4);
 			LengthIdEncoding ID_LONG = (buf, length, id) -> buf.writeInt(length + 8);
-			LengthIdEncoding ID_VARNUM = (buf, length, id) -> buf.writeInt(length + calcVarNumberLength(id));
+			LengthIdEncoding ID_UVARNUM = (buf, length, id) -> buf.writeInt(length + calcUVarNumLength(id));
+			LengthIdEncoding ID_SVARNUM = (buf, length, id) -> buf.writeInt(length + calcSVarNumLength(id));
 		}
 		
 		@FunctionalInterface
@@ -257,6 +291,21 @@ public final class PacketConstructionMode {
 			
 			ContentIdEncoding DEFAULT = (buf, content, id) -> buf.transferFrom(content);
 		}
+		
+		@FunctionalInterface
+		public interface BytesEncoding extends EncodingConsumer {
+			
+			void encode(final ByteBuffer buf);
+			
+			@Override
+			default void encode(final ByteBuffer buf, final ByteBuffer content, final PacketBase<?> packet, final long id, final int length) {
+				encode(buf);
+			}
+			
+			static BytesEncoding bytes(final byte[] bytes) {
+				return (buf) -> buf.write(bytes);
+			}
+		}
 	}
 	
 	public static class DecodingStrategy {
@@ -274,40 +323,60 @@ public final class PacketConstructionMode {
 			return id(IdDecoding.DEFAULT);
 		}
 		
-		public DecodingStrategy id(final IdDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy id(final IdDecoding decoding) {
+			return add(decoding);
 		}
 		
 		public DecodingStrategy length() {
 			return length(LengthDecoding.DEFAULT);
 		}
 		
-		public DecodingStrategy length(final LengthDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy length(final LengthDecoding decoding) {
+			return add(decoding);
 		}
 		
-		public DecodingStrategy length(final LengthIdDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy length(final LengthIdDecoding decoding) {
+			return add(decoding);
 		}
 		
-		public DecodingStrategy modifyLength(final ModifyLengthDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy modifyLength(final ModifyLengthDecoding decoding) {
+			return add(decoding);
 		}
 		
-		public DecodingStrategy modifyLength(final ModifyLengthIdDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy modifyLength(final ModifyLengthIdDecoding decoding) {
+			return add(decoding);
 		}
 		
 		public DecodingStrategy content() {
 			return content(ContentDecoding.DEFAULT);
 		}
 		
-		public DecodingStrategy content(final ContentDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy content(final ContentDecoding decoding) {
+			return add(decoding);
 		}
 		
-		public DecodingStrategy content(final ContentIdDecoding consumer) {
-			return add(consumer);
+		public DecodingStrategy content(final ContentIdDecoding decoding) {
+			return add(decoding);
+		}
+		
+		public DecodingStrategy bytes(final int n) {
+			return bytes(new byte[n]);
+		}
+		
+		public DecodingStrategy bytes(final byte[] bytes) {
+			return bytes(BytesDecoding.bytes(bytes));
+		}
+		
+		public DecodingStrategy bytes(final BytesDecoding decoding) {
+			return add(decoding);
+		}
+		
+		public DecodingStrategy skip(final int n) {
+			return skip(SkipDecoding.skip(n));
+		}
+		
+		public DecodingStrategy skip(final SkipDecoding decoding) {
+			return add(decoding);
 		}
 		
 		private interface DecodingFunction<T> {
@@ -320,7 +389,8 @@ public final class PacketConstructionMode {
 		private enum DecodingFunctionType {
 			ID,
 			LENGTH,
-			CONTENT
+			CONTENT,
+			BOOL
 		}
 		
 		@FunctionalInterface
@@ -409,7 +479,8 @@ public final class PacketConstructionMode {
 				return DecodingFunctionType.LENGTH;
 			}
 			
-			ModifyLengthIdDecoding ID_VARNUM = (length, id) -> length - calcVarNumberLength(id);
+			ModifyLengthIdDecoding ID_UVARNUM = (length, id) -> length - calcUVarNumLength(id);
+			ModifyLengthIdDecoding ID_SVARNUM = (length, id) -> length - calcSVarNumLength(id);
 		}
 		
 		@FunctionalInterface
@@ -450,6 +521,48 @@ public final class PacketConstructionMode {
 			}
 			
 			ContentIdDecoding DEFAULT = (buf, content, length, id) -> content.write(buf.read(length));
+		}
+		
+		@FunctionalInterface
+		public interface BytesDecoding extends DecodingFunction<Boolean> {
+			
+			boolean decode(final ByteBuffer buf);
+			
+			@Override
+			default Boolean decode(final ByteBuffer buf, final ByteBuffer content, final long id, final int length) {
+				return decode(buf);
+			}
+			
+			@Override
+			default DecodingFunctionType type() {
+				return DecodingFunctionType.BOOL;
+			}
+			
+			static BytesDecoding bytes(final byte[] bytes) {
+				return (buf) -> Arrays.equals(buf.read(bytes.length), bytes);
+			}
+		}
+		
+		@FunctionalInterface
+		public interface SkipDecoding extends DecodingFunction<Void> {
+			
+			void decode(final ByteBuffer buf);
+			
+			@Override
+			default Void decode(final ByteBuffer buf, final ByteBuffer content, final long id, final int length) {
+				decode(buf);
+				
+				return null;
+			}
+			
+			@Override
+			default DecodingFunctionType type() {
+				return DecodingFunctionType.CONTENT;
+			}
+			
+			static SkipDecoding skip(final int n) {
+				return (buf) -> buf.skip(n);
+			}
 		}
 	}
 }
