@@ -30,7 +30,7 @@ public abstract class Connection {
 	
 	@Getter(AccessLevel.PACKAGE)
 	@Accessors(fluent = true)
-	private PacketEvalQueueThread packetEvalThread;
+	private PacketQueueThread packetQueueThread;
 	
 	private boolean stopped = false;
 	
@@ -167,14 +167,14 @@ public abstract class Connection {
 	}
 	
 	/**
-	 * Initializes the {@link ListeningThread} and the {@link PacketEvalQueueThread} with the {@link Socket} 'socket'.
+	 * Initializes the {@link ListeningThread} and the {@link PacketQueueThread} with the {@link Socket} 'socket'.
 	 *
 	 * @param socket the {@link Socket} which will be used to construct the
-	 *               {@link ListeningThread} and the {@link PacketEvalQueueThread}
+	 *               {@link ListeningThread} and the {@link PacketQueueThread}
 	 * @throws IOException if an I/O error occurs
 	 */
 	protected final void initThreads(final Socket socket) throws IOException {
-		if(listeningThread != null || packetEvalThread != null) return;
+		if(listeningThread != null || packetQueueThread != null) return;
 		
 		listeningThread = new ListeningThread(socket) {
 			
@@ -183,7 +183,7 @@ public abstract class Connection {
 				return INSTANCE;
 			}
 		};
-		packetEvalThread = new PacketEvalQueueThread(socket) {
+		packetQueueThread = new PacketQueueThread(socket) {
 			
 			@Override
 			protected Connection connection() {
@@ -193,26 +193,26 @@ public abstract class Connection {
 	}
 	
 	/**
-	 * Starts the {@link ListeningThread} and the {@link PacketEvalQueueThread}.
+	 * Starts the {@link ListeningThread} and the {@link PacketQueueThread}.
 	 *
 	 * @see Thread#start()
 	 */
 	public final void start() {
-		if(listeningThread != null && packetEvalThread != null) {
+		if(listeningThread != null && packetQueueThread != null) {
 			listeningThread.start();
-			packetEvalThread.start();
+			packetQueueThread.start();
 		}
 	}
 	
 	/**
-	 * Interrupts the {@link ListeningThread} and the {@link PacketEvalQueueThread}.
+	 * Interrupts the {@link ListeningThread} and the {@link PacketQueueThread}.
 	 *
 	 * @see Thread#interrupt()
 	 */
 	public final void stop() {
-		if(listeningThread != null && packetEvalThread != null) {
+		if(listeningThread != null && packetQueueThread != null) {
 			listeningThread.interrupt();
-			packetEvalThread.interrupt();
+			packetQueueThread.interrupt();
 			
 			try {
 				out.close();

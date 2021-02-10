@@ -10,11 +10,11 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class PacketEvalQueueThread extends Thread {
+public abstract class PacketQueueThread extends Thread {
 	final BlockingQueue<PacketIdPair> packetQueue = new LinkedBlockingQueue<>();
 	
-	public PacketEvalQueueThread(final Socket socket) {
-		setName("PacketEvaluation-Thread(" + threadName() + ") -- " + socket.getLocalAddress() + ":" + socket.getLocalPort());
+	public PacketQueueThread(final Socket socket) {
+		setName("PacketQueue-Thread(" + threadName() + ") -- " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 	}
 	
 	@Override
@@ -38,7 +38,7 @@ public abstract class PacketEvalQueueThread extends Thread {
 	
 	/**
 	 * The {@link Connection} instance associated with this
-	 * {@link PacketEvalQueueThread}.
+	 * {@link PacketQueueThread}.
 	 *
 	 * @return the {@link Connection} instance
 	 */

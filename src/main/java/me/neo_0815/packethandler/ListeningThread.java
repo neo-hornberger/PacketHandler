@@ -46,7 +46,7 @@ public abstract class ListeningThread extends Thread {
 						
 						pip = connection().constructionMode().decodePacket(connection().byteBufferGenerator(), buf, connection().registry());
 						
-						connection().packetEvalThread().packetQueue.offer(pip);
+						connection().packetQueueThread().packetQueue.offer(pip);
 					}
 				}
 			}catch(final IOException e) {
