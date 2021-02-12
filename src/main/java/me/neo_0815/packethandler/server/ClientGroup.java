@@ -1,6 +1,8 @@
 package me.neo_0815.packethandler.server;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketFactory;
@@ -9,9 +11,13 @@ import me.neo_0815.packethandler.registry.IPacketType;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class ClientGroup implements Iterable<ClientConnection> {
+	@Getter
+	private final UUID uuid;
 	private final Set<ClientConnection> clients = new HashSet<>();
 	
 	public boolean add(final ClientConnection client) {

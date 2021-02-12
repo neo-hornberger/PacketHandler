@@ -1,5 +1,6 @@
 package me.neo_0815.packethandler.server;
 
+import lombok.NonNull;
 import lombok.Synchronized;
 import me.neo_0815.packethandler.PacketHelper;
 import me.neo_0815.packethandler.PacketMap;
@@ -200,48 +201,48 @@ public abstract class Server {
 		return clients.containsKey(client);
 	}
 	
-	@Synchronized("clients")
 	protected final ClientConnection getClient(final UUID client) {
 		if(!hasClient(client)) {
 			System.err.println(client + " is not registered!");
 			
 			return null;
-		}else return clients.get(client);
-	}
-	
-	protected final void computeOnClientIfPresent(final UUID client, final Consumer<ClientConnection> consumer) {
-		if(!hasClient(client)) {
-			System.err.println(client + " is not registered!");
-			
-			return;
 		}
 		
 		synchronized(clients) {
-			consumer.accept(clients.get(client));
+			return clients.get(client);
 		}
 	}
 	
-	@Synchronized("clients")
+	protected final void computeOnClientIfPresent(final UUID client, final Consumer<ClientConnection> consumer) {
+		final ClientConnection cc = getClient(client);
+		
+		if(cc != null) consumer.accept(cc);
+	}
+	
+	@Synchronized("clientGroups")
 	public final Set<UUID> getClientGroups() {
 		return Collections.unmodifiableSet(clientGroups.keySet());
 	}
 	
-	@Synchronized("clients")
+	@Synchronized("clientGroups")
 	public final boolean hasClientGroup(final UUID clientGroup) {
 		return clientGroups.containsKey(clientGroup);
 	}
 	
-	@Synchronized("clients")
 	protected final ClientGroup getClientGroup(final UUID clientGroup) {
 		if(!hasClientGroup(clientGroup)) {
 			System.err.println(clientGroup + " is not registered!");
 			
 			return null;
-		}else return clientGroups.get(clientGroup);
+		}
+		
+		synchronized(clientGroups) {
+			return clientGroups.get(clientGroup);
+		}
 	}
 	
-	protected final void changeClientUUID(final UUID client, final UUID uuid) {
-		if(client == null || client.equals(uuid)) return;
+	protected final void changeClientUUID(@NonNull final UUID client, @NonNull final UUID uuid) {
+		if(client.equals(uuid)) return;
 		
 		computeOnClientIfPresent(client, cc -> {
 			if(hasClient(uuid)) {

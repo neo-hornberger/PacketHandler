@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public final class ClientConnection extends Connection {
 	private final Server server;
 	
