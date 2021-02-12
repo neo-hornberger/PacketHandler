@@ -37,17 +37,21 @@ public abstract class ListeningThread extends Thread {
 	public final void run() {
 		while(!isInterrupted())
 			try {
-				if(in.available() > 0) {
-					final ByteBuffer buf = connection().byteBufferGenerator().generate().readFromInputStream(in);
+				if(in.available() <= 0) {
+					onSpinWait();
 					
-					PacketIdPair pip;
-					while(!buf.isEmpty()) {
-						if(connection().isEncryptionEnabled()) buf.decrypt(connection().encryption());
-						
-						pip = connection().constructionMode().decodePacket(connection().byteBufferGenerator(), buf, connection().registry());
-						
-						connection().packetQueueThread().packetQueue.offer(pip);
-					}
+					continue;
+				}
+				
+				final ByteBuffer buf = connection().byteBufferGenerator().generate().readFromInputStream(in);
+				
+				PacketIdPair pip;
+				while(!buf.isEmpty()) {
+					if(connection().isEncryptionEnabled()) buf.decrypt(connection().encryption());
+					
+					pip = connection().constructionMode().decodePacket(connection().byteBufferGenerator(), buf, connection().registry());
+					
+					connection().packetQueueThread().packetQueue.offer(pip);
 				}
 			}catch(final IOException e) {
 				e.printStackTrace();

@@ -19,21 +19,24 @@ public abstract class PacketQueueThread extends Thread {
 	
 	@Override
 	public void run() {
-		while(!isInterrupted())
+		while(!isInterrupted()) {
+			final PacketIdPair pip;
+			
 			try {
-				final PacketIdPair pip = packetQueue.take();
-				
-				if(pip.id() >= 0) connection().onPacketReceived(pip.packet(), pip.id());
-				else {
-					if(pip.id() == UnknownPacket.ID)
-						connection().onUnknownPacketReceived((UnknownPacket) pip.packet());
-					else if(pip.packet() instanceof PacketPrimitiveMessage)
-						connection().onMessageReceived(((PacketPrimitiveMessage) pip.packet()).message);
-					else connection().onSystemPacketReceived(pip.packet());
-				}
+				pip = packetQueue.take();
 			}catch(final InterruptedException e) {
-				e.printStackTrace();
+				break;
 			}
+			
+			if(pip.id() >= 0) connection().onPacketReceived(pip.packet(), pip.id());
+			else {
+				if(pip.id() == UnknownPacket.ID)
+					connection().onUnknownPacketReceived((UnknownPacket) pip.packet());
+				else if(pip.packet() instanceof PacketPrimitiveMessage)
+					connection().onMessageReceived(((PacketPrimitiveMessage) pip.packet()).message);
+				else connection().onSystemPacketReceived(pip.packet());
+			}
+		}
 	}
 	
 	/**

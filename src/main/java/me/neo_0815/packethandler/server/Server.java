@@ -115,8 +115,8 @@ public abstract class Server {
 					
 					try {
 						Thread.sleep(10_000); // TODO make user-controllable
-					}catch(final InterruptedException ex) {
-						ex.printStackTrace();
+					}catch(final InterruptedException e) {
+						break;
 					}
 				}
 			}
