@@ -95,6 +95,7 @@ public class ByteBuffer {
 	public Charset charset = Charset.defaultCharset();
 	
 	private final ByteList bytes = new ByteList();
+	
 	@Getter
 	private int limit = -1, writeCursor = 0, readCursor = 0;
 	private int mark = 0;
@@ -1094,8 +1095,7 @@ public class ByteBuffer {
 	 * @see #readLong()
 	 */
 	public UUID readUUID() {
-		final long msb;
-		final long lsb;
+		final long msb, lsb;
 		
 		if(byteOrder.isBigEndian()) {
 			msb = readLong();
@@ -1134,8 +1134,7 @@ public class ByteBuffer {
 	
 	public LocalDate readLocalDate() {
 		final int year;
-		final byte month;
-		final byte day;
+		final byte month, day;
 		
 		if(byteOrder.isBigEndian()) {
 			year = readVarInt();
@@ -1151,9 +1150,7 @@ public class ByteBuffer {
 	}
 	
 	public LocalTime readLocalTime() {
-		final byte hour;
-		final byte minute;
-		final byte second;
+		final byte hour, minute, second;
 		final int nano;
 		
 		if(byteOrder.isBigEndian()) {
@@ -1218,9 +1215,7 @@ public class ByteBuffer {
 	}
 	
 	public Period readPeriod() {
-		final int years;
-		final int months;
-		final int days;
+		final int years, months, days;
 		
 		if(byteOrder.isBigEndian()) {
 			years = readVarInt();
@@ -1650,6 +1645,7 @@ public class ByteBuffer {
 		private static final int DEFAULT_SIZE = 16;
 		
 		private byte[] data = {};
+		
 		@Getter
 		@Accessors(fluent = true)
 		private int size = 0;

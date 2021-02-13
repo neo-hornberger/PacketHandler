@@ -1,5 +1,7 @@
 package me.neo_0815.packethandler.executor;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import me.neo_0815.packethandler.Connection;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
@@ -8,6 +10,8 @@ import me.neo_0815.packethandler.server.Server;
 import java.util.UUID;
 import java.util.function.Function;
 
+
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 abstract class AbstractPacketExecutor {
 	private final Function<UUID, AbstractPacketRegistry> registryFunction;
 	
@@ -17,10 +21,6 @@ abstract class AbstractPacketExecutor {
 	
 	public AbstractPacketExecutor(final Server server) {
 		this(server::registry);
-	}
-	
-	private AbstractPacketExecutor(final Function<UUID, AbstractPacketRegistry> registryFunction) {
-		this.registryFunction = registryFunction;
 	}
 	
 	protected abstract void init();
