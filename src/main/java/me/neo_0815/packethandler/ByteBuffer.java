@@ -1,8 +1,9 @@
 package me.neo_0815.packethandler;
 
+import me.neo_0815.encryption.Encryption;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import me.neo_0815.encryption.Encryption;
 
 import java.io.IOException;
 import java.io.InputStream;

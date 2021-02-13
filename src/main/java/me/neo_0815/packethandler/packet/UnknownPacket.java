@@ -1,8 +1,9 @@
 package me.neo_0815.packethandler.packet;
 
-import lombok.RequiredArgsConstructor;
 import me.neo_0815.packethandler.ByteBuffer;
 import me.neo_0815.packethandler.PacketMap;
+
+import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 

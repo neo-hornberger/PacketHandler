@@ -1,10 +1,11 @@
 package me.neo_0815.packethandler;
 
+import me.neo_0815.packethandler.packet.PacketBase;
+import me.neo_0815.packethandler.registry.IPacketClassFactory;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import me.neo_0815.packethandler.packet.PacketBase;
-import me.neo_0815.packethandler.registry.IPacketClassFactory;
 
 @AllArgsConstructor
 public enum TestPacketType implements IPacketClassFactory {

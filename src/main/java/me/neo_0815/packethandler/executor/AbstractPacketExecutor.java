@@ -1,11 +1,12 @@
 package me.neo_0815.packethandler.executor;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import me.neo_0815.packethandler.Connection;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.server.Server;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 
 import java.util.UUID;
 import java.util.function.Function;

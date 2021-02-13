@@ -1,11 +1,11 @@
 package me.neo_0815.packethandler;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-
 import me.neo_0815.json.values.JsonObject;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public class PacketHelper {
 	
@@ -56,7 +56,7 @@ public class PacketHelper {
 	public static PacketBase<?> construct(final Class<? extends PacketBase<?>> packet) {
 		try {
 			return packet.getDeclaredConstructor().newInstance();
-		}catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+		}catch(final InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		

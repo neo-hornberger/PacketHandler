@@ -1,9 +1,9 @@
 package me.neo_0815.packethandler.packet;
 
-import java.util.UUID;
-
 import me.neo_0815.packethandler.ByteBuffer;
 import me.neo_0815.packethandler.PacketMap;
+
+import java.util.UUID;
 
 public abstract class PacketUUID extends Packet {
 	public UUID uuid;

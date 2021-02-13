@@ -1,11 +1,12 @@
 package me.neo_0815.packethandler;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import me.neo_0815.encryption.Encryption;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.registry.DefaultPacketRegistry;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter

@@ -1,12 +1,13 @@
 package me.neo_0815.packethandler.client;
 
-import lombok.Getter;
 import me.neo_0815.packethandler.Connection;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.system.*;
 import me.neo_0815.packethandler.server.Server;
+
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.InetAddress;

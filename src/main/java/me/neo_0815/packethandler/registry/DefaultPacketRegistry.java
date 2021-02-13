@@ -1,8 +1,9 @@
 package me.neo_0815.packethandler.registry;
 
-import lombok.NonNull;
 import me.neo_0815.packethandler.packet.Packet;
 import me.neo_0815.packethandler.packet.PacketBase;
+
+import lombok.NonNull;
 
 import java.util.Map;
 import java.util.function.Supplier;

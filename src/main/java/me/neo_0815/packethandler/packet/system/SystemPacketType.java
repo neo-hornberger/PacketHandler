@@ -1,10 +1,11 @@
 package me.neo_0815.packethandler.packet.system;
 
+import me.neo_0815.packethandler.packet.PacketBase;
+import me.neo_0815.packethandler.registry.IPacketClassType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import me.neo_0815.packethandler.packet.PacketBase;
-import me.neo_0815.packethandler.registry.IPacketClassType;
 
 @Getter
 @Accessors(fluent = true)

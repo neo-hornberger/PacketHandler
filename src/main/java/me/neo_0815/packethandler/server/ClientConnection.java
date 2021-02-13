@@ -1,6 +1,5 @@
 package me.neo_0815.packethandler.server;
 
-import lombok.EqualsAndHashCode;
 import me.neo_0815.packethandler.Connection;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.Properties;
@@ -10,6 +9,8 @@ import me.neo_0815.packethandler.packet.system.PacketConnect;
 import me.neo_0815.packethandler.packet.system.PacketDisconnect;
 import me.neo_0815.packethandler.packet.system.PacketWake;
 import me.neo_0815.packethandler.packet.system.SystemPacketType;
+
+import lombok.EqualsAndHashCode;
 
 import java.io.IOException;
 import java.net.Socket;

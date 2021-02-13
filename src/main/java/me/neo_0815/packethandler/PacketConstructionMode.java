@@ -1,11 +1,12 @@
 package me.neo_0815.packethandler;
 
-import lombok.NonNull;
-import lombok.Value;
-import lombok.experimental.Accessors;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
+
+import lombok.NonNull;
+import lombok.Value;
+import lombok.experimental.Accessors;
 
 import java.util.Arrays;
 import java.util.LinkedList;

@@ -1,6 +1,5 @@
 package me.neo_0815.packethandler.executor;
 
-import lombok.Value;
 import me.neo_0815.packethandler.Connection;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketFactory;
@@ -8,6 +7,8 @@ import me.neo_0815.packethandler.registry.IPacketType;
 import me.neo_0815.packethandler.registry.IPhase;
 import me.neo_0815.packethandler.registry.PhasedPacketRegistry;
 import me.neo_0815.packethandler.server.Server;
+
+import lombok.Value;
 
 import java.util.HashMap;
 import java.util.UUID;

@@ -1,8 +1,5 @@
 package me.neo_0815.packethandler;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import me.neo_0815.encryption.Encryption;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
@@ -10,6 +7,10 @@ import me.neo_0815.packethandler.packet.system.SystemPacketType;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.io.OutputStream;

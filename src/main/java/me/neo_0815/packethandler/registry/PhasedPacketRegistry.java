@@ -1,9 +1,10 @@
 package me.neo_0815.packethandler.registry;
 
+import me.neo_0815.packethandler.packet.PacketBase;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-import me.neo_0815.packethandler.packet.PacketBase;
 
 import java.util.HashMap;
 import java.util.Map;

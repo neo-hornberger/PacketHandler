@@ -1,7 +1,5 @@
 package me.neo_0815.packethandler.server;
 
-import lombok.NonNull;
-import lombok.Synchronized;
 import me.neo_0815.packethandler.PacketHelper;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.Properties;
@@ -14,6 +12,9 @@ import me.neo_0815.packethandler.packet.system.SystemPacketType;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
+
+import lombok.NonNull;
+import lombok.Synchronized;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -1,11 +1,12 @@
 package me.neo_0815.packethandler;
 
-import lombok.SneakyThrows;
 import me.neo_0815.packethandler.client.Client;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.PacketRegistry;
 import me.neo_0815.packethandler.registry.UnaryPacketRegistry;
 import me.neo_0815.packethandler.server.Server;
+
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.util.UUID;

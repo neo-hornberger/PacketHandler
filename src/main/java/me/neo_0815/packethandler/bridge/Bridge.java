@@ -1,9 +1,5 @@
 package me.neo_0815.packethandler.bridge;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Synchronized;
-import lombok.experimental.Accessors;
 import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.bridge.IHostPortPairCreator.HostPortPair;
 import me.neo_0815.packethandler.client.Client;
@@ -11,6 +7,11 @@ import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
 import me.neo_0815.packethandler.registry.IPacketType;
 import me.neo_0815.packethandler.server.Server;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Synchronized;
+import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.util.HashMap;

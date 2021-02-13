@@ -1,12 +1,13 @@
 package me.neo_0815.packethandler.server;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Iterator;
