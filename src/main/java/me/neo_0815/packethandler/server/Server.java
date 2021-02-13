@@ -78,7 +78,9 @@ public abstract class Server {
 							
 							final ClientConnection clientCon = new ClientConnection(INSTANCE, client, uuid, properties.copy());
 							
-							clients.put(uuid, clientCon);
+							synchronized(clients) {
+								clients.put(uuid, clientCon);
+							}
 							
 							if(properties.isSendingConnectionPackets())
 								clientCon.sendPacket(SystemPacketType.CONNECT, PacketMap.of("uuid", uuid));
@@ -103,16 +105,18 @@ public abstract class Server {
 					
 					final long currentTime = System.currentTimeMillis();
 					
-					clients.forEach((uuid, client) -> {
-						final long currentDiff = currentTime - client.lastPacket;
+					synchronized(clients) {
+						clients.forEach((uuid, client) -> {
+							final long currentDiff = currentTime - client.lastPacket;
+							
+							if(currentDiff > 50_000) disconnectClient(uuid);
+							else if(currentDiff > 10_000) client.sendPacket(SystemPacketType.WAKE);
+							
+							if(client.isStopped()) toRemove.add(uuid);
+						});
 						
-						if(currentDiff > 50_000) disconnectClient(uuid);
-						else if(currentDiff > 10_000) client.sendPacket(SystemPacketType.WAKE);
-						
-						if(client.isStopped()) toRemove.add(uuid);
-					});
-					
-					toRemove.forEach(clients::remove);
+						toRemove.forEach(clients::remove);
+					}
 					
 					try {
 						Thread.sleep(10_000); // TODO make user-controllable
@@ -221,7 +225,7 @@ public abstract class Server {
 	
 	@Synchronized("clientGroups")
 	public final Set<UUID> getClientGroups() {
-		return Collections.unmodifiableSet(clientGroups.keySet());
+		return new HashSet<>(clientGroups.keySet());
 	}
 	
 	@Synchronized("clientGroups")
@@ -239,6 +243,21 @@ public abstract class Server {
 		synchronized(clientGroups) {
 			return clientGroups.get(clientGroup);
 		}
+	}
+	
+	protected final ClientGroup createClientGroup() {
+		UUID uuid;
+		do
+			uuid = UUID.randomUUID();
+		while(hasClient(uuid));
+		
+		final ClientGroup group = new ClientGroup(uuid);
+		
+		synchronized(clientGroups) {
+			clientGroups.put(uuid, group);
+		}
+		
+		return group;
 	}
 	
 	protected final void changeClientUUID(@NonNull final UUID client, @NonNull final UUID uuid) {
