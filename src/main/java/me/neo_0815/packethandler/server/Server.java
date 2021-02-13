@@ -249,7 +249,7 @@ public abstract class Server {
 		UUID uuid;
 		do
 			uuid = UUID.randomUUID();
-		while(hasClient(uuid));
+		while(hasClientGroup(uuid));
 		
 		final ClientGroup group = new ClientGroup(uuid);
 		
