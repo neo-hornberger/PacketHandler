@@ -1,4 +1,3 @@
-/.gradle/
 /target/
-/.idea/
 /PacketHandler.iml
+/dependency-reduced-pom.xml
