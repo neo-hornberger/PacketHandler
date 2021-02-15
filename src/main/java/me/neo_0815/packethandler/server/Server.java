@@ -36,6 +36,7 @@ public abstract class Server {
 	private final Properties properties;
 	private final Thread acceptingThread;
 	
+	private final Set<UUID> uuids = new HashSet<>();
 	private final Map<UUID, ClientConnection> clients = new HashMap<>();
 	private final Map<UUID, ClientGroup> clientGroups = new HashMap<>();
 	
@@ -72,11 +73,7 @@ public abstract class Server {
 						if(haltAccepting) {
 							if(blockConnecting) client.close();
 						}else {
-							UUID uuid;
-							do
-								uuid = UUID.randomUUID();
-							while(hasClient(uuid));
-							
+							final UUID uuid = newUUID();
 							final ClientConnection clientCon = new ClientConnection(INSTANCE, client, uuid, properties.copy());
 							
 							synchronized(clients) {
@@ -196,6 +193,16 @@ public abstract class Server {
 		}
 	}
 	
+	@Synchronized("uuids")
+	private UUID newUUID() {
+		UUID uuid;
+		do
+			uuid = UUID.randomUUID();
+		while(!uuids.add(uuid));
+		
+		return uuid;
+	}
+	
 	@Synchronized("clients")
 	public final Set<UUID> getClients() {
 		return new HashSet<>(clients.keySet());
@@ -247,12 +254,8 @@ public abstract class Server {
 	}
 	
 	protected final ClientGroup createClientGroup() {
-		UUID uuid;
-		do
-			uuid = UUID.randomUUID();
-		while(hasClientGroup(uuid));
-		
-		final ClientGroup group = new ClientGroup(uuid);
+		final UUID uuid = newUUID();
+		final ClientGroup group = new ClientGroup(INSTANCE, uuid);
 		
 		synchronized(clientGroups) {
 			clientGroups.put(uuid, group);

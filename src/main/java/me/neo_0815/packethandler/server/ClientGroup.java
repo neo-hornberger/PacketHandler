@@ -5,9 +5,9 @@ import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,22 +15,44 @@ import java.util.Set;
 import java.util.UUID;
 
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ClientGroup implements Iterable<ClientConnection> {
+	private final Server server;
+	
 	@Getter
 	private final UUID uuid;
 	private final Set<ClientConnection> clients = new HashSet<>();
 	
+	public boolean add(final UUID client) {
+		return add(findClient(client));
+	}
+	
 	public boolean add(final ClientConnection client) {
 		return clients.add(client);
+	}
+	
+	public boolean remove(final UUID client) {
+		return remove(findClient(client));
 	}
 	
 	public boolean remove(final ClientConnection client) {
 		return clients.remove(client);
 	}
 	
+	public boolean has(final UUID client) {
+		return has(findClient(client));
+	}
+	
 	public boolean has(final ClientConnection client) {
 		return clients.contains(client);
+	}
+	
+	public void clear() {
+		clients.clear();
+	}
+	
+	public int count() {
+		return clients.size();
 	}
 	
 	public void sendPacket(final PacketBase<?> packet, final long id) {
@@ -92,5 +114,9 @@ public class ClientGroup implements Iterable<ClientConnection> {
 	@Override
 	public Iterator<ClientConnection> iterator() {
 		return clients.iterator();
+	}
+	
+	private ClientConnection findClient(final UUID client) {
+		return server.getClient(client);
 	}
 }
