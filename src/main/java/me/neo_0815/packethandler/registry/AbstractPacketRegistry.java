@@ -348,7 +348,7 @@ public abstract class AbstractPacketRegistry {
 	}
 	
 	protected final long calcNextFreeId(final boolean incoming) {
-		return packets(incoming).keySet().stream().reduce((long) -1, (mem, id) -> mem + 1 == id ? id : mem) + 1;
+		return packets(incoming).keySet().stream().reduce(-1L, (mem, id) -> mem + 1 == id ? id : mem) + 1;
 	}
 	
 	protected final void alreadyRegisteredPacket(final long id) {
