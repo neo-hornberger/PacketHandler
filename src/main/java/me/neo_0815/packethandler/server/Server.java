@@ -194,6 +194,16 @@ public abstract class Server {
 	}
 	
 	@Synchronized("uuids")
+	public final Set<UUID> getRegisteredUUIDs() {
+		return new HashSet<>(uuids);
+	}
+	
+	@Synchronized("uuids")
+	public final boolean isRegisteredUUID(final UUID uuid) {
+		return uuids.contains(uuid);
+	}
+	
+	@Synchronized("uuids")
 	private UUID newUUID() {
 		UUID uuid;
 		do
@@ -253,6 +263,12 @@ public abstract class Server {
 		}
 	}
 	
+	protected final void computeOnClientGroupIfPresent(final UUID clientGroup, final Consumer<ClientGroup> consumer) {
+		final ClientGroup cg = getClientGroup(clientGroup);
+		
+		if(cg != null) consumer.accept(cg);
+	}
+	
 	protected final ClientGroup createClientGroup() {
 		final UUID uuid = newUUID();
 		final ClientGroup group = new ClientGroup(INSTANCE, uuid);
@@ -268,7 +284,7 @@ public abstract class Server {
 		if(client.equals(uuid)) return;
 		
 		computeOnClientIfPresent(client, cc -> {
-			if(hasClient(uuid)) {
+			if(isRegisteredUUID(uuid)) {
 				System.err.println(uuid + " is already registered!");
 				
 				cc.changeUUID(client);
