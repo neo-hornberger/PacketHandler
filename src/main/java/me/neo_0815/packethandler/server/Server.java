@@ -1,7 +1,7 @@
 package me.neo_0815.packethandler.server;
 
-import me.neo_0815.packethandler.PacketHelper;
 import me.neo_0815.packethandler.PacketMap;
+import me.neo_0815.packethandler.PacketSender;
 import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.client.Client;
 import me.neo_0815.packethandler.packet.PacketBase;
@@ -213,6 +213,25 @@ public abstract class Server {
 		return uuid;
 	}
 	
+	protected final PacketSender getPacketSender(final UUID uuid) {
+		if(!isRegisteredUUID(uuid)) {
+			System.err.println(uuid + " is not registered!");
+			
+			return null;
+		}
+		
+		if(hasClient(uuid)) return getClient(uuid);
+		if(hasClientGroup(uuid)) return getClientGroup(uuid);
+		
+		throw new IllegalStateException();
+	}
+	
+	protected final void computeOnSenderIfPresent(final UUID uuid, final Consumer<PacketSender> consumer) {
+		final PacketSender ps = getPacketSender(uuid);
+		
+		if(ps != null) consumer.accept(ps);
+	}
+	
 	@Synchronized("clients")
 	public final Set<UUID> getClients() {
 		return new HashSet<>(clients.keySet());
@@ -225,7 +244,7 @@ public abstract class Server {
 	
 	protected final ClientConnection getClient(final UUID client) {
 		if(!hasClient(client)) {
-			System.err.println(client + " is not registered!");
+			System.err.println(client + " is not a registered client!");
 			
 			return null;
 		}
@@ -253,7 +272,7 @@ public abstract class Server {
 	
 	protected final ClientGroup getClientGroup(final UUID clientGroup) {
 		if(!hasClientGroup(clientGroup)) {
-			System.err.println(clientGroup + " is not registered!");
+			System.err.println(clientGroup + " is not a registered client-group!");
 			
 			return null;
 		}
@@ -329,130 +348,121 @@ public abstract class Server {
 	protected void onClientUUIDChanged(final UUID client, final UUID oldUUID) {
 	}
 	
-	public final void sendPacket(final UUID client, final PacketBase<?> packet, final long id) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packet, id));
+	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final long id) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, id));
 	}
 	
-	public final void sendPacket(final UUID client, final PacketBase<?> packet, final IPacketFactory packetFactory) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packet, packetFactory));
+	public final void sendPacket(final UUID uuid, final long id, final PacketMap map) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(id, map));
 	}
 	
-	public final void sendPacket(final UUID client, final PacketBase<?> packet, final IPacketType packetType) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packet, packetType));
+	public final void sendPacket(final UUID uuid, final IPacketFactory packetFactory, final PacketMap map) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetFactory, map));
 	}
 	
-	public final void sendPacket(final UUID client, final long... ids) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(ids));
+	public final void sendPacket(final UUID uuid, final IPacketType packetType, final PacketMap map) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetType, map));
 	}
 	
-	public final void sendPacket(final UUID client, final IPacketFactory... packetFactories) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packetFactories));
+	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketFactory packetFactory) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, packetFactory));
 	}
 	
-	public final void sendPacket(final UUID client, final IPacketType... packetTypes) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packetTypes));
+	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketType packetType) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, packetType));
 	}
 	
-	public final void sendPacket(final UUID client, final long id, final PacketMap map) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(id, map));
+	public final void sendPacket(final UUID uuid, final long... ids) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(ids));
 	}
 	
-	public final void sendPacket(final UUID client, final IPacketFactory packetFactory, final PacketMap map) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packetFactory, map));
+	public final void sendPacket(final UUID uuid, final IPacketFactory... packetFactories) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetFactories));
 	}
 	
-	public final void sendPacket(final UUID client, final IPacketType packetType, final PacketMap map) {
-		computeOnClientIfPresent(client, cc -> cc.sendPacket(packetType, map));
+	public final void sendPacket(final UUID uuid, final IPacketType... packetTypes) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetTypes));
 	}
 	
-	public final void sendPackets(final UUID client, final long[] ids, final PacketMap[] maps) {
-		computeOnClientIfPresent(client, cc -> cc.sendPackets(ids, maps));
+	public final void sendPackets(final UUID uuid, final long[] ids, final PacketMap[] maps) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(ids, maps));
 	}
 	
-	public final void sendPackets(final UUID client, final IPacketFactory[] packetFactories, final PacketMap[] maps) {
-		computeOnClientIfPresent(client, cc -> cc.sendPackets(packetFactories, maps));
+	public final void sendPackets(final UUID uuid, final IPacketFactory[] packetFactories, final PacketMap[] maps) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(packetFactories, maps));
 	}
 	
-	public final void sendPackets(final UUID client, final IPacketType[] packetTypes, final PacketMap[] maps) {
-		computeOnClientIfPresent(client, cc -> cc.sendPackets(packetTypes, maps));
+	public final void sendPackets(final UUID uuid, final IPacketType[] packetTypes, final PacketMap[] maps) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(packetTypes, maps));
 	}
 	
-	public final void sendMessage(final UUID client, final String message) {
-		computeOnClientIfPresent(client, cc -> cc.sendMessage(message));
+	public final void sendMessage(final UUID uuid, final String message) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendMessage(message));
 	}
 	
-	public final void sendMessages(final UUID client, final String[] messages) {
-		computeOnClientIfPresent(client, cc -> cc.sendMessages(messages));
+	public final void sendMessages(final UUID uuid, final String[] messages) {
+		computeOnSenderIfPresent(uuid, sender -> sender.sendMessages(messages));
 	}
 	
 	@Synchronized("clients")
+	private void computeOnAllClients(final Consumer<ClientConnection> consumer) {
+		clients.values().forEach(consumer);
+	}
+	
 	public final void broadcastPacket(final PacketBase<?> packet, final long id) {
-		clients.values().forEach(client -> client.sendPacket(packet, id));
-	}
-	
-	@Synchronized("clients")
-	public final void broadcastPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
-		clients.values().forEach(client -> client.sendPacket(packet, packetFactory));
-	}
-	
-	@Synchronized("clients")
-	public final void broadcastPacket(final PacketBase<?> packet, final IPacketType packetType) {
-		clients.values().forEach(client -> client.sendPacket(packet, packetType));
-	}
-	
-	public final void broadcastPacket(final long... ids) {
-		broadcastPackets(ids, PacketHelper.createMaps(ids.length));
-	}
-	
-	public final void broadcastPacket(final IPacketFactory... packetFactories) {
-		broadcastPackets(packetFactories, PacketHelper.createMaps(packetFactories.length));
-	}
-	
-	public final void broadcastPacket(final IPacketType... packetTypes) {
-		broadcastPackets(packetTypes, PacketHelper.createMaps(packetTypes.length));
+		computeOnAllClients(client -> client.sendPacket(packet, id));
 	}
 	
 	public final void broadcastPacket(final long id, final PacketMap map) {
-		broadcastPackets(new long[] { id }, new PacketMap[] { map });
+		computeOnAllClients(client -> client.sendPacket(id, map));
 	}
 	
 	public final void broadcastPacket(final IPacketFactory packetFactory, final PacketMap map) {
-		broadcastPackets(new IPacketFactory[] { packetFactory }, new PacketMap[] { map });
+		computeOnAllClients(client -> client.sendPacket(packetFactory, map));
 	}
 	
 	public final void broadcastPacket(final IPacketType packetType, final PacketMap map) {
-		broadcastPackets(new IPacketType[] { packetType }, new PacketMap[] { map });
+		computeOnAllClients(client -> client.sendPacket(packetType, map));
 	}
 	
-	@Synchronized("clients")
+	public final void broadcastPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
+		computeOnAllClients(client -> client.sendPacket(packet, packetFactory));
+	}
+	
+	public final void broadcastPacket(final PacketBase<?> packet, final IPacketType packetType) {
+		computeOnAllClients(client -> client.sendPacket(packet, packetType));
+	}
+	
+	public final void broadcastPacket(final long... ids) {
+		computeOnAllClients(client -> client.sendPacket(ids));
+	}
+	
+	public final void broadcastPacket(final IPacketFactory... packetFactories) {
+		computeOnAllClients(client -> client.sendPacket(packetFactories));
+	}
+	
+	public final void broadcastPacket(final IPacketType... packetTypes) {
+		computeOnAllClients(client -> client.sendPacket(packetTypes));
+	}
+	
 	public final void broadcastPackets(final long[] ids, final PacketMap[] maps) {
-		clients.values().forEach(client -> client.sendPackets(ids, maps));
+		computeOnAllClients(client -> client.sendPackets(ids, maps));
 	}
 	
-	@Synchronized("clients")
 	public final void broadcastPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
-		clients.values().forEach(client -> client.sendPackets(packetFactories, maps));
+		computeOnAllClients(client -> client.sendPackets(packetFactories, maps));
 	}
 	
-	@Synchronized("clients")
 	public final void broadcastPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
-		clients.values().forEach(client -> client.sendPackets(packetTypes, maps));
+		computeOnAllClients(client -> client.sendPackets(packetTypes, maps));
 	}
 	
 	public final void broadcastMessage(final String message) {
-		broadcastPacket(SystemPacketType.MESSAGE, PacketMap.of("message", message));
+		computeOnAllClients(client -> client.sendMessage(message));
 	}
 	
 	public final void broadcastMessages(final String[] messages) {
-		final IPacketType[] packetTypes = new IPacketType[messages.length];
-		final PacketMap[] maps = new PacketMap[messages.length];
-		
-		Arrays.fill(packetTypes, SystemPacketType.MESSAGE);
-		
-		for(int i = 0; i < messages.length; i++)
-			maps[i] = PacketMap.of("message", messages[i]);
-		
-		broadcastPackets(packetTypes, maps);
+		computeOnAllClients(client -> client.sendMessages(messages));
 	}
 	
 	public final AbstractPacketRegistry registry(final UUID client) {

@@ -1,22 +1,26 @@
 package me.neo_0815.packethandler.server;
 
+import me.neo_0815.packethandler.ByteBuffer;
 import me.neo_0815.packethandler.PacketMap;
+import me.neo_0815.packethandler.PacketSender;
+import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketFactory;
 import me.neo_0815.packethandler.registry.IPacketType;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
-@EqualsAndHashCode
-@AllArgsConstructor
-public class ClientGroup implements Iterable<ClientConnection> {
+@EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor
+public final class ClientGroup extends PacketSender implements Iterable<ClientConnection> {
+	@EqualsAndHashCode.Exclude
 	private final Server server;
 	
 	@Getter
@@ -55,60 +59,84 @@ public class ClientGroup implements Iterable<ClientConnection> {
 		return clients.size();
 	}
 	
+	@Override
+	protected void sendData(final ByteBuffer buf) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public void sendPacket(final PacketBase<?> packet, final long id) {
 		forEach(client -> client.sendPacket(packet, id));
 	}
 	
-	public void sendPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
-		forEach(client -> client.sendPacket(packet, packetFactory));
-	}
-	
-	public void sendPacket(final PacketBase<?> packet, final IPacketType packetType) {
-		forEach(client -> client.sendPacket(packet, packetType));
-	}
-	
-	public void sendPacket(final long... ids) {
-		forEach(client -> client.sendPacket(ids));
-	}
-	
-	public void sendPacket(final IPacketFactory... packetFactories) {
-		forEach(client -> client.sendPacket(packetFactories));
-	}
-	
-	public void sendPacket(final IPacketType... packetTypes) {
-		forEach(client -> client.sendPacket(packetTypes));
-	}
-	
+	@Override
 	public void sendPacket(final long id, final PacketMap map) {
 		forEach(client -> client.sendPacket(id, map));
 	}
 	
+	@Override
 	public void sendPacket(final IPacketFactory packetFactories, final PacketMap map) {
 		forEach(client -> client.sendPacket(packetFactories, map));
 	}
 	
+	@Override
 	public void sendPacket(final IPacketType packetType, final PacketMap map) {
 		forEach(client -> client.sendPacket(packetType, map));
 	}
 	
+	@Override
+	public void sendPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
+		forEach(client -> client.sendPacket(packet, packetFactory));
+	}
+	
+	@Override
+	public void sendPacket(final PacketBase<?> packet, final IPacketType packetType) {
+		forEach(client -> client.sendPacket(packet, packetType));
+	}
+	
+	@Override
+	public void sendPacket(final long... ids) {
+		forEach(client -> client.sendPacket(ids));
+	}
+	
+	@Override
+	public void sendPacket(final IPacketFactory... packetFactories) {
+		forEach(client -> client.sendPacket(packetFactories));
+	}
+	
+	@Override
+	public void sendPacket(final IPacketType... packetTypes) {
+		forEach(client -> client.sendPacket(packetTypes));
+	}
+	
+	@Override
 	public void sendPackets(final long[] ids, final PacketMap[] maps) {
 		forEach(client -> client.sendPackets(ids, maps));
 	}
 	
+	@Override
 	public void sendPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
 		forEach(client -> client.sendPackets(packetFactories, maps));
 	}
 	
+	@Override
 	public void sendPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
 		forEach(client -> client.sendPackets(packetTypes, maps));
 	}
 	
+	@Override
 	public void sendMessage(final String message) {
 		forEach(client -> client.sendMessage(message));
 	}
 	
+	@Override
 	public void sendMessages(final String[] messages) {
 		forEach(client -> client.sendMessages(messages));
+	}
+	
+	@Override
+	protected Properties properties() {
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

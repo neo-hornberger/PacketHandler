@@ -4,12 +4,10 @@ import me.neo_0815.encryption.Encryption;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.registry.DefaultPacketRegistry;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class Properties {
 	private boolean clearingEnabled = true, sendingConnectionPackets = true, encryptionEnabled = false;

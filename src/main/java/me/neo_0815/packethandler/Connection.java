@@ -10,19 +10,20 @@ import me.neo_0815.packethandler.registry.IPacketType;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * The class Connection represents the connection between a client and a server.
  *
  * @author Neo Hornberger
  */
-public abstract class Connection {
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class Connection extends PacketSender {
 	private final Connection INSTANCE = this;
 	private final Properties properties;
 	
@@ -34,10 +35,6 @@ public abstract class Connection {
 	private PacketQueueThread packetQueueThread;
 	
 	private boolean stopped = false;
-	
-	protected Connection(final Properties properties) {
-		this.properties = properties;
-	}
 	
 	public Connection(final OutputStream out, final Properties properties) {
 		this(properties);
@@ -62,19 +59,8 @@ public abstract class Connection {
 	protected void onMessageReceived(final String message) {
 	}
 	
-	private ByteBuffer constructPacket(final long id, final PacketMap map) {
-		return constructionMode().encodePacket(byteBufferGenerator(), id, map, registry());
-	}
-	
-	private ByteBuffer constructPacket(final IPacketFactory packetFactory, final PacketMap map) {
-		return constructPacket(registry().getOutgoingPacketId(packetFactory), map);
-	}
-	
-	private ByteBuffer constructPacket(final IPacketType packetType, final PacketMap map) {
-		return constructPacket(packetType.id(), map);
-	}
-	
-	private void sendData(final ByteBuffer buf) {
+	@Override
+	protected final void sendData(final ByteBuffer buf) {
 		try {
 			if(isEncryptionEnabled()) buf.encrypt(encryption());
 			
@@ -82,89 +68,6 @@ public abstract class Connection {
 		}catch(final IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public final void sendPacket(final PacketBase<?> packet, final long id) {
-		final ByteBuffer buf = byteBufferGenerator().generate();
-		
-		constructionMode().encodePacket(byteBufferGenerator(), packet, id, registry()).transferTo(buf);
-		
-		sendData(buf);
-	}
-	
-	public final void sendPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
-		sendPacket(packet, registry().getOutgoingPacketId(packetFactory));
-	}
-	
-	public final void sendPacket(final PacketBase<?> packet, final IPacketType packetType) {
-		sendPacket(packet, packetType.id());
-	}
-	
-	public final void sendPacket(final long... ids) {
-		sendPackets(ids, PacketHelper.createMaps(ids.length));
-	}
-	
-	public final void sendPacket(final IPacketFactory... packetFactories) {
-		sendPackets(packetFactories, PacketHelper.createMaps(packetFactories.length));
-	}
-	
-	public final void sendPacket(final IPacketType... packetTypes) {
-		sendPackets(packetTypes, PacketHelper.createMaps(packetTypes.length));
-	}
-	
-	public final void sendPacket(final long id, final PacketMap map) {
-		sendPackets(new long[] { id }, new PacketMap[] { map });
-	}
-	
-	public final void sendPacket(final IPacketFactory packetFactories, final PacketMap map) {
-		sendPackets(new IPacketFactory[] { packetFactories }, new PacketMap[] { map });
-	}
-	
-	public final void sendPacket(final IPacketType packetType, final PacketMap map) {
-		sendPackets(new IPacketType[] { packetType }, new PacketMap[] { map });
-	}
-	
-	public final void sendPackets(final long[] ids, final PacketMap[] maps) {
-		final ByteBuffer buf = byteBufferGenerator().generate();
-		
-		for(int i = 0; i < ids.length; i++)
-			constructPacket(ids[i], maps[i]).transferTo(buf);
-		
-		sendData(buf);
-	}
-	
-	public final void sendPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
-		final ByteBuffer buf = byteBufferGenerator().generate();
-		
-		for(int i = 0; i < packetFactories.length; i++)
-			constructPacket(packetFactories[i], maps[i]).transferTo(buf);
-		
-		sendData(buf);
-	}
-	
-	public final void sendPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
-		final ByteBuffer buf = byteBufferGenerator().generate();
-		
-		for(int i = 0; i < packetTypes.length; i++)
-			constructPacket(packetTypes[i], maps[i]).transferTo(buf);
-		
-		sendData(buf);
-	}
-	
-	public final void sendMessage(final String message) {
-		sendPacket(SystemPacketType.MESSAGE, PacketMap.of("message", message));
-	}
-	
-	public final void sendMessages(final String[] messages) {
-		final IPacketType[] packetTypes = new IPacketType[messages.length];
-		final PacketMap[] maps = new PacketMap[messages.length];
-		
-		Arrays.fill(packetTypes, SystemPacketType.MESSAGE);
-		
-		for(int i = 0; i < messages.length; i++)
-			maps[i] = PacketMap.of("message", messages[i]);
-		
-		sendPackets(packetTypes, maps);
 	}
 	
 	/**
@@ -225,14 +128,6 @@ public abstract class Connection {
 		}
 	}
 	
-	public final void startEncryption() {
-		properties.setEncryptionEnabled(true);
-	}
-	
-	public final void stopEncryption() {
-		properties.setEncryptionEnabled(false);
-	}
-	
 	/**
 	 * @see #stop()
 	 */
@@ -244,6 +139,19 @@ public abstract class Connection {
 	
 	public final boolean isStopped() {
 		return stopped;
+	}
+	
+	public final void startEncryption() {
+		properties.setEncryptionEnabled(true);
+	}
+	
+	public final void stopEncryption() {
+		properties.setEncryptionEnabled(false);
+	}
+	
+	@Override
+	protected final Properties properties() {
+		return properties;
 	}
 	
 	public final AbstractPacketRegistry registry() {
@@ -269,5 +177,81 @@ public abstract class Connection {
 	
 	public final Encryption encryption() {
 		return properties.getEncryption();
+	}
+	
+	/*
+	 *
+	 * PacketSender methods overridden and finalized
+	 *
+	 */
+	
+	@Override
+	public final void sendPacket(final PacketBase<?> packet, final long id) {
+		super.sendPacket(packet, id);
+	}
+	
+	@Override
+	public final void sendPacket(final long id, final PacketMap map) {
+		super.sendPacket(id, map);
+	}
+	
+	@Override
+	public final void sendPacket(final IPacketFactory packetFactory, final PacketMap map) {
+		super.sendPacket(packetFactory, map);
+	}
+	
+	@Override
+	public final void sendPacket(final IPacketType packetType, final PacketMap map) {
+		super.sendPacket(packetType, map);
+	}
+	
+	@Override
+	public final void sendPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
+		super.sendPacket(packet, packetFactory);
+	}
+	
+	@Override
+	public final void sendPacket(final PacketBase<?> packet, final IPacketType packetType) {
+		super.sendPacket(packet, packetType);
+	}
+	
+	@Override
+	public final void sendPacket(final long... ids) {
+		super.sendPacket(ids);
+	}
+	
+	@Override
+	public final void sendPacket(final IPacketFactory... packetFactories) {
+		super.sendPacket(packetFactories);
+	}
+	
+	@Override
+	public final void sendPacket(final IPacketType... packetTypes) {
+		super.sendPacket(packetTypes);
+	}
+	
+	@Override
+	public final void sendPackets(final long[] ids, final PacketMap[] maps) {
+		super.sendPackets(ids, maps);
+	}
+	
+	@Override
+	public final void sendPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
+		super.sendPackets(packetFactories, maps);
+	}
+	
+	@Override
+	public final void sendPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
+		super.sendPackets(packetTypes, maps);
+	}
+	
+	@Override
+	public final void sendMessage(final String message) {
+		super.sendMessage(message);
+	}
+	
+	@Override
+	public final void sendMessages(final String[] messages) {
+		super.sendMessages(messages);
 	}
 }
