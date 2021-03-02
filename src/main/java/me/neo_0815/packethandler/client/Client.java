@@ -96,7 +96,7 @@ public abstract class Client extends Connection {
 		initThreads(socket);
 	}
 	
-	public final void changeUUID(final UUID uuid) {
+	public void changeUUID(final UUID uuid) {
 		sendPacket(SystemPacketType.CHANGE_UUID, PacketMap.of("uuid", uuid));
 	}
 	

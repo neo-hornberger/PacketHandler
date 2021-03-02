@@ -3,12 +3,15 @@ package me.neo_0815.packethandler.packet.system;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.registry.IPacketClassType;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Accessors(fluent = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor
 public enum SystemPacketType implements IPacketClassType {
 	CONNECT(-1, PacketConnect.class),
@@ -19,6 +22,6 @@ public enum SystemPacketType implements IPacketClassType {
 	MESSAGE(-100, PacketPrimitiveMessage.class);
 	
 	
-	private final long id;
-	private final Class<? extends PacketBase<?>> packetClass;
+	long id;
+	Class<? extends PacketBase<?>> packetClass;
 }

@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.util.UUID;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-public final class ClientConnection extends Connection {
+public class ClientConnection extends Connection {
 	private final Server server;
 	
 	@EqualsAndHashCode.Include

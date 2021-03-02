@@ -131,23 +131,23 @@ public abstract class Server {
 	 *
 	 * @see Thread#start()
 	 */
-	public final void start() {
+	public void start() {
 		acceptingThread.start();
 		
 		if(properties.isClearingEnabled()) clearingThread.start();
 	}
 	
-	public final void halt() {
+	public void halt() {
 		haltAccepting = !haltAccepting;
 	}
 	
-	public final void halt(final boolean blockClients) {
+	public void halt(final boolean blockClients) {
 		halt();
 		
 		blockConnecting = blockClients;
 	}
 	
-	public final boolean isHalting() {
+	public boolean isHalting() {
 		return haltAccepting;
 	}
 	
@@ -157,7 +157,7 @@ public abstract class Server {
 	 * @see Thread#interrupt()
 	 * @see #disconnectAll()
 	 */
-	public final void stop() {
+	public void stop() {
 		acceptingThread.interrupt();
 		
 		if(properties.isClearingEnabled()) clearingThread.interrupt();
@@ -172,20 +172,20 @@ public abstract class Server {
 	 * @see Map#clear()
 	 */
 	@Synchronized("clients")
-	public final void disconnectAll() {
+	public void disconnectAll() {
 		clients.values().forEach(ClientConnection::disconnect);
 		clients.clear();
 	}
 	
-	public final void startEncryptionForClient(final UUID client) {
+	public void startEncryptionForClient(final UUID client) {
 		computeOnClientIfPresent(client, ClientConnection::startEncryption);
 	}
 	
-	public final void stopEncryptionForClient(final UUID client) {
+	public void stopEncryptionForClient(final UUID client) {
 		computeOnClientIfPresent(client, ClientConnection::stopEncryption);
 	}
 	
-	public final void disconnectClient(final UUID client) {
+	public void disconnectClient(final UUID client) {
 		computeOnClientIfPresent(client, ClientConnection::disconnect);
 		
 		synchronized(clients) {
@@ -194,12 +194,12 @@ public abstract class Server {
 	}
 	
 	@Synchronized("uuids")
-	public final Set<UUID> getRegisteredUUIDs() {
+	public Set<UUID> getRegisteredUUIDs() {
 		return new HashSet<>(uuids);
 	}
 	
 	@Synchronized("uuids")
-	public final boolean isRegisteredUUID(final UUID uuid) {
+	public boolean isRegisteredUUID(final UUID uuid) {
 		return uuids.contains(uuid);
 	}
 	
@@ -213,7 +213,7 @@ public abstract class Server {
 		return uuid;
 	}
 	
-	protected final PacketSender getPacketSender(final UUID uuid) {
+	protected PacketSender getPacketSender(final UUID uuid) {
 		if(!isRegisteredUUID(uuid)) {
 			System.err.println(uuid + " is not registered!");
 			
@@ -226,23 +226,23 @@ public abstract class Server {
 		throw new IllegalStateException();
 	}
 	
-	protected final void computeOnSenderIfPresent(final UUID uuid, final Consumer<PacketSender> consumer) {
+	protected void computeOnSenderIfPresent(final UUID uuid, final Consumer<PacketSender> consumer) {
 		final PacketSender ps = getPacketSender(uuid);
 		
 		if(ps != null) consumer.accept(ps);
 	}
 	
 	@Synchronized("clients")
-	public final Set<UUID> getClients() {
+	public Set<UUID> getClients() {
 		return new HashSet<>(clients.keySet());
 	}
 	
 	@Synchronized("clients")
-	public final boolean hasClient(final UUID client) {
+	public boolean hasClient(final UUID client) {
 		return clients.containsKey(client);
 	}
 	
-	protected final ClientConnection getClient(final UUID client) {
+	protected ClientConnection getClient(final UUID client) {
 		if(!hasClient(client)) {
 			System.err.println(client + " is not a registered client!");
 			
@@ -254,23 +254,23 @@ public abstract class Server {
 		}
 	}
 	
-	protected final void computeOnClientIfPresent(final UUID client, final Consumer<ClientConnection> consumer) {
+	protected void computeOnClientIfPresent(final UUID client, final Consumer<ClientConnection> consumer) {
 		final ClientConnection cc = getClient(client);
 		
 		if(cc != null) consumer.accept(cc);
 	}
 	
 	@Synchronized("clientGroups")
-	public final Set<UUID> getClientGroups() {
+	public Set<UUID> getClientGroups() {
 		return new HashSet<>(clientGroups.keySet());
 	}
 	
 	@Synchronized("clientGroups")
-	public final boolean hasClientGroup(final UUID clientGroup) {
+	public boolean hasClientGroup(final UUID clientGroup) {
 		return clientGroups.containsKey(clientGroup);
 	}
 	
-	protected final ClientGroup getClientGroup(final UUID clientGroup) {
+	protected ClientGroup getClientGroup(final UUID clientGroup) {
 		if(!hasClientGroup(clientGroup)) {
 			System.err.println(clientGroup + " is not a registered client-group!");
 			
@@ -282,13 +282,13 @@ public abstract class Server {
 		}
 	}
 	
-	protected final void computeOnClientGroupIfPresent(final UUID clientGroup, final Consumer<ClientGroup> consumer) {
+	protected void computeOnClientGroupIfPresent(final UUID clientGroup, final Consumer<ClientGroup> consumer) {
 		final ClientGroup cg = getClientGroup(clientGroup);
 		
 		if(cg != null) consumer.accept(cg);
 	}
 	
-	protected final ClientGroup createClientGroup() {
+	protected ClientGroup createClientGroup() {
 		final UUID uuid = newUUID();
 		final ClientGroup group = new ClientGroup(INSTANCE, uuid);
 		
@@ -299,7 +299,7 @@ public abstract class Server {
 		return group;
 	}
 	
-	protected final void changeClientUUID(@NonNull final UUID client, @NonNull final UUID uuid) {
+	protected void changeClientUUID(@NonNull final UUID client, @NonNull final UUID uuid) {
 		if(client.equals(uuid)) return;
 		
 		computeOnClientIfPresent(client, cc -> {
@@ -348,129 +348,129 @@ public abstract class Server {
 	protected void onClientUUIDChanged(final UUID client, final UUID oldUUID) {
 	}
 	
-	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final long id) {
+	public void sendPacket(final UUID uuid, final PacketBase<?> packet, final long id) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, id));
 	}
 	
-	public final void sendPacket(final UUID uuid, final long id, final PacketMap map) {
+	public void sendPacket(final UUID uuid, final long id, final PacketMap map) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(id, map));
 	}
 	
-	public final void sendPacket(final UUID uuid, final IPacketFactory packetFactory, final PacketMap map) {
+	public void sendPacket(final UUID uuid, final IPacketFactory packetFactory, final PacketMap map) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetFactory, map));
 	}
 	
-	public final void sendPacket(final UUID uuid, final IPacketType packetType, final PacketMap map) {
+	public void sendPacket(final UUID uuid, final IPacketType packetType, final PacketMap map) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetType, map));
 	}
 	
-	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketFactory packetFactory) {
+	public void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketFactory packetFactory) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, packetFactory));
 	}
 	
-	public final void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketType packetType) {
+	public void sendPacket(final UUID uuid, final PacketBase<?> packet, final IPacketType packetType) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packet, packetType));
 	}
 	
-	public final void sendPacket(final UUID uuid, final long... ids) {
+	public void sendPacket(final UUID uuid, final long... ids) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(ids));
 	}
 	
-	public final void sendPacket(final UUID uuid, final IPacketFactory... packetFactories) {
+	public void sendPacket(final UUID uuid, final IPacketFactory... packetFactories) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetFactories));
 	}
 	
-	public final void sendPacket(final UUID uuid, final IPacketType... packetTypes) {
+	public void sendPacket(final UUID uuid, final IPacketType... packetTypes) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPacket(packetTypes));
 	}
 	
-	public final void sendPackets(final UUID uuid, final long[] ids, final PacketMap[] maps) {
+	public void sendPackets(final UUID uuid, final long[] ids, final PacketMap[] maps) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(ids, maps));
 	}
 	
-	public final void sendPackets(final UUID uuid, final IPacketFactory[] packetFactories, final PacketMap[] maps) {
+	public void sendPackets(final UUID uuid, final IPacketFactory[] packetFactories, final PacketMap[] maps) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(packetFactories, maps));
 	}
 	
-	public final void sendPackets(final UUID uuid, final IPacketType[] packetTypes, final PacketMap[] maps) {
+	public void sendPackets(final UUID uuid, final IPacketType[] packetTypes, final PacketMap[] maps) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendPackets(packetTypes, maps));
 	}
 	
-	public final void sendMessage(final UUID uuid, final String message) {
+	public void sendMessage(final UUID uuid, final String message) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendMessage(message));
 	}
 	
-	public final void sendMessages(final UUID uuid, final String[] messages) {
+	public void sendMessages(final UUID uuid, final String[] messages) {
 		computeOnSenderIfPresent(uuid, sender -> sender.sendMessages(messages));
 	}
 	
 	@Synchronized("clients")
-	private void computeOnAllClients(final Consumer<ClientConnection> consumer) {
+	protected void computeOnAllClients(final Consumer<ClientConnection> consumer) {
 		clients.values().forEach(consumer);
 	}
 	
-	public final void broadcastPacket(final PacketBase<?> packet, final long id) {
+	public void broadcastPacket(final PacketBase<?> packet, final long id) {
 		computeOnAllClients(client -> client.sendPacket(packet, id));
 	}
 	
-	public final void broadcastPacket(final long id, final PacketMap map) {
+	public void broadcastPacket(final long id, final PacketMap map) {
 		computeOnAllClients(client -> client.sendPacket(id, map));
 	}
 	
-	public final void broadcastPacket(final IPacketFactory packetFactory, final PacketMap map) {
+	public void broadcastPacket(final IPacketFactory packetFactory, final PacketMap map) {
 		computeOnAllClients(client -> client.sendPacket(packetFactory, map));
 	}
 	
-	public final void broadcastPacket(final IPacketType packetType, final PacketMap map) {
+	public void broadcastPacket(final IPacketType packetType, final PacketMap map) {
 		computeOnAllClients(client -> client.sendPacket(packetType, map));
 	}
 	
-	public final void broadcastPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
+	public void broadcastPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
 		computeOnAllClients(client -> client.sendPacket(packet, packetFactory));
 	}
 	
-	public final void broadcastPacket(final PacketBase<?> packet, final IPacketType packetType) {
+	public void broadcastPacket(final PacketBase<?> packet, final IPacketType packetType) {
 		computeOnAllClients(client -> client.sendPacket(packet, packetType));
 	}
 	
-	public final void broadcastPacket(final long... ids) {
+	public void broadcastPacket(final long... ids) {
 		computeOnAllClients(client -> client.sendPacket(ids));
 	}
 	
-	public final void broadcastPacket(final IPacketFactory... packetFactories) {
+	public void broadcastPacket(final IPacketFactory... packetFactories) {
 		computeOnAllClients(client -> client.sendPacket(packetFactories));
 	}
 	
-	public final void broadcastPacket(final IPacketType... packetTypes) {
+	public void broadcastPacket(final IPacketType... packetTypes) {
 		computeOnAllClients(client -> client.sendPacket(packetTypes));
 	}
 	
-	public final void broadcastPackets(final long[] ids, final PacketMap[] maps) {
+	public void broadcastPackets(final long[] ids, final PacketMap[] maps) {
 		computeOnAllClients(client -> client.sendPackets(ids, maps));
 	}
 	
-	public final void broadcastPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
+	public void broadcastPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
 		computeOnAllClients(client -> client.sendPackets(packetFactories, maps));
 	}
 	
-	public final void broadcastPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
+	public void broadcastPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
 		computeOnAllClients(client -> client.sendPackets(packetTypes, maps));
 	}
 	
-	public final void broadcastMessage(final String message) {
+	public void broadcastMessage(final String message) {
 		computeOnAllClients(client -> client.sendMessage(message));
 	}
 	
-	public final void broadcastMessages(final String[] messages) {
+	public void broadcastMessages(final String[] messages) {
 		computeOnAllClients(client -> client.sendMessages(messages));
 	}
 	
-	public final AbstractPacketRegistry registry(final UUID client) {
+	public AbstractPacketRegistry registry(final UUID client) {
 		return client != null ? getClient(client).registry() : properties.getPacketRegistry();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public final <R extends AbstractPacketRegistry> R getPacketRegistry(final UUID client) {
+	public <R extends AbstractPacketRegistry> R getPacketRegistry(final UUID client) {
 		return client != null ? getClient(client).getPacketRegistry() : (R) properties.getPacketRegistry();
 	}
 }

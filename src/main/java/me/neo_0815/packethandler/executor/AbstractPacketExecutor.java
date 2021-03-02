@@ -12,8 +12,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-abstract class AbstractPacketExecutor {
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class AbstractPacketExecutor {
 	private final Function<UUID, AbstractPacketRegistry> registryFunction;
 	
 	AbstractPacketExecutor(final Connection connection) {

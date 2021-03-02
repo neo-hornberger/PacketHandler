@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public final class ClientGroup extends PacketSender implements Iterable<ClientConnection> {
+public class ClientGroup extends PacketSender implements Iterable<ClientConnection> {
 	@EqualsAndHashCode.Exclude
 	private final Server server;
 	
@@ -60,7 +60,7 @@ public final class ClientGroup extends PacketSender implements Iterable<ClientCo
 	}
 	
 	@Override
-	protected void sendData(final ByteBuffer buf) {
+	protected final void sendData(final ByteBuffer buf) {
 		throw new UnsupportedOperationException();
 	}
 	

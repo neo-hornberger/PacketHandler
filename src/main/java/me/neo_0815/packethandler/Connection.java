@@ -5,8 +5,6 @@ import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
 import me.neo_0815.packethandler.packet.system.SystemPacketType;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
-import me.neo_0815.packethandler.registry.IPacketFactory;
-import me.neo_0815.packethandler.registry.IPacketType;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -101,7 +99,7 @@ public abstract class Connection extends PacketSender {
 	 *
 	 * @see Thread#start()
 	 */
-	public final void start() {
+	public void start() {
 		if(listeningThread != null && packetQueueThread != null) {
 			listeningThread.start();
 			packetQueueThread.start();
@@ -113,7 +111,7 @@ public abstract class Connection extends PacketSender {
 	 *
 	 * @see Thread#interrupt()
 	 */
-	public final void stop() {
+	public void stop() {
 		if(listeningThread != null && packetQueueThread != null) {
 			listeningThread.interrupt();
 			packetQueueThread.interrupt();
@@ -131,127 +129,51 @@ public abstract class Connection extends PacketSender {
 	/**
 	 * @see #stop()
 	 */
-	public final void disconnect() {
+	public void disconnect() {
 		if(properties.isSendingConnectionPackets()) sendPacket(SystemPacketType.DISCONNECT);
 		
 		stop();
 	}
 	
-	public final boolean isStopped() {
+	public boolean isStopped() {
 		return stopped;
 	}
 	
-	public final void startEncryption() {
+	public void startEncryption() {
 		properties.setEncryptionEnabled(true);
 	}
 	
-	public final void stopEncryption() {
+	public void stopEncryption() {
 		properties.setEncryptionEnabled(false);
 	}
 	
 	@Override
-	protected final Properties properties() {
+	protected Properties properties() {
 		return properties;
 	}
 	
-	public final AbstractPacketRegistry registry() {
+	public AbstractPacketRegistry registry() {
 		return properties.getPacketRegistry();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public final <R extends AbstractPacketRegistry> R getPacketRegistry() {
+	public <R extends AbstractPacketRegistry> R getPacketRegistry() {
 		return (R) registry();
 	}
 	
-	public final PacketConstructionMode constructionMode() {
+	public PacketConstructionMode constructionMode() {
 		return properties.getPacketConstructionMode();
 	}
 	
-	public final ByteBufferGenerator<?> byteBufferGenerator() {
+	public ByteBufferGenerator<?> byteBufferGenerator() {
 		return properties.getByteBufferGenerator();
 	}
 	
-	public final boolean isEncryptionEnabled() {
+	public boolean isEncryptionEnabled() {
 		return properties.isEncryptionEnabled();
 	}
 	
-	public final Encryption encryption() {
+	public Encryption encryption() {
 		return properties.getEncryption();
-	}
-	
-	/*
-	 *
-	 * PacketSender methods overridden and finalized
-	 *
-	 */
-	
-	@Override
-	public final void sendPacket(final PacketBase<?> packet, final long id) {
-		super.sendPacket(packet, id);
-	}
-	
-	@Override
-	public final void sendPacket(final long id, final PacketMap map) {
-		super.sendPacket(id, map);
-	}
-	
-	@Override
-	public final void sendPacket(final IPacketFactory packetFactory, final PacketMap map) {
-		super.sendPacket(packetFactory, map);
-	}
-	
-	@Override
-	public final void sendPacket(final IPacketType packetType, final PacketMap map) {
-		super.sendPacket(packetType, map);
-	}
-	
-	@Override
-	public final void sendPacket(final PacketBase<?> packet, final IPacketFactory packetFactory) {
-		super.sendPacket(packet, packetFactory);
-	}
-	
-	@Override
-	public final void sendPacket(final PacketBase<?> packet, final IPacketType packetType) {
-		super.sendPacket(packet, packetType);
-	}
-	
-	@Override
-	public final void sendPacket(final long... ids) {
-		super.sendPacket(ids);
-	}
-	
-	@Override
-	public final void sendPacket(final IPacketFactory... packetFactories) {
-		super.sendPacket(packetFactories);
-	}
-	
-	@Override
-	public final void sendPacket(final IPacketType... packetTypes) {
-		super.sendPacket(packetTypes);
-	}
-	
-	@Override
-	public final void sendPackets(final long[] ids, final PacketMap[] maps) {
-		super.sendPackets(ids, maps);
-	}
-	
-	@Override
-	public final void sendPackets(final IPacketFactory[] packetFactories, final PacketMap[] maps) {
-		super.sendPackets(packetFactories, maps);
-	}
-	
-	@Override
-	public final void sendPackets(final IPacketType[] packetTypes, final PacketMap[] maps) {
-		super.sendPackets(packetTypes, maps);
-	}
-	
-	@Override
-	public final void sendMessage(final String message) {
-		super.sendMessage(message);
-	}
-	
-	@Override
-	public final void sendMessages(final String[] messages) {
-		super.sendMessages(messages);
 	}
 }

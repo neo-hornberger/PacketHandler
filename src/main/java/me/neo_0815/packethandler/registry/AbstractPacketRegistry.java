@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public abstract class AbstractPacketRegistry {
-	public static final boolean INCOMING = true, OUTGOING = false;
+	protected static final boolean INCOMING = true, OUTGOING = false;
 	
 	protected abstract void registerPacket(@NonNull final Supplier<? extends PacketBase<?>> packet, final long id, final boolean incoming);
 	
