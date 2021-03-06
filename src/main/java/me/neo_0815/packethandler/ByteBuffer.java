@@ -25,26 +25,25 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * The class ByteBuffer stores bytes that will be sent through an
- * {@link OutputStream} and reads bytes from an {@link InputStream}. All types
- * that uses more than one byte are stored in the big-endian format.
+ * The class ByteBuffer stores bytes that will be sent through an {@link OutputStream} and reads bytes from an {@link InputStream}.
+ * All types that use more than one byte are stored in the chosen byte-order format.
  *
  * @author Neo Hornberger
  */
 public class ByteBuffer {
 	/**
 	 * A constant holding the maximum value an {@code unsigned byte} can have,
-	 * 2<sup>8</sup>-1.
+	 * 2<sup>8</sup>-1 ({@value}).
 	 */
 	public static final int MAX_UBYTE = 0xFF;
 	/**
 	 * A constant holding the maximum value an {@code unsigned short} can have,
-	 * 2<sup>16</sup>-1.
+	 * 2<sup>16</sup>-1 ({@value}).
 	 */
 	public static final int MAX_USHORT = 0xFFFF;
 	/**
 	 * A constant holding the maximum value an {@code unsigned int} can have,
-	 * 2<sup>32</sup>-1.
+	 * 2<sup>32</sup>-1 ({@value}).
 	 */
 	public static final long MAX_UINT = 0xFFFFFFFFL;
 	
@@ -111,8 +110,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} containing all bytes of the byte[]
-	 * 'bytes'.
+	 * Constructs a new {@link ByteBuffer} containing all bytes of the byte array {@code bytes}.
 	 *
 	 * @param bytes the bytes to write
 	 * @see #write(byte[])
@@ -122,8 +120,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} containing all bytes of the
-	 * {@link ByteBuffer}.
+	 * Constructs a new {@link ByteBuffer} containing all bytes of the {@link ByteBuffer}.
 	 *
 	 * @param buffer the {@link ByteBuffer} of which the bytes are copied from
 	 * @see #write(byte[])
@@ -136,7 +133,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the byte 'b' to the buffer.
+	 * Writes the byte {@code b} to the buffer.
 	 *
 	 * @param b the byte to write
 	 * @return the current {@link ByteBuffer} instance
@@ -153,7 +150,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the int 'b' as a byte to the buffer.
+	 * Writes the int {@code b} as a byte to the buffer.
 	 *
 	 * @param b the byte to write
 	 * @return the current {@link ByteBuffer} instance
@@ -164,7 +161,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the long 'b' as a byte to the buffer.
+	 * Writes the long {@code b} as a byte to the buffer.
 	 *
 	 * @param b the byte to write
 	 * @return the current {@link ByteBuffer} instance
@@ -175,7 +172,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the bytes contained in the byte[] 'bytes' to the buffer.
+	 * Writes the bytes contained in the byte array {@code bytes} to the buffer.
 	 *
 	 * @param bytes the bytes to write
 	 * @return the current {@link ByteBuffer} instance
@@ -189,7 +186,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the first 'n' bytes contained in the byte[] 'bytes' to the buffer.
+	 * Writes the first {@code n} bytes contained in the byte array {@code bytes} to the buffer.
 	 *
 	 * @param bytes the bytes to write
 	 * @param n     the count of bytes to write
@@ -204,7 +201,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the short 's' to the buffer.
+	 * Writes the short {@code s} to the buffer.
 	 *
 	 * @param s the short to write
 	 * @return the current {@link ByteBuffer} instance
@@ -223,7 +220,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the int 's' as a short to the buffer.
+	 * Writes the int {@code s} as a short to the buffer.
 	 *
 	 * @param s the short to write
 	 * @return the current {@link ByteBuffer} instance
@@ -234,7 +231,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the int 'i' to the buffer.
+	 * Writes the int {@code i} to the buffer.
 	 *
 	 * @param i the int to write
 	 * @return the current {@link ByteBuffer} instance
@@ -257,7 +254,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the long 'l' to the buffer.
+	 * Writes the long {@code l} to the buffer.
 	 *
 	 * @param l the long to write
 	 * @return the current {@link ByteBuffer} instance
@@ -288,7 +285,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the float 'f' to the buffer.
+	 * Writes the float {@code f} to the buffer.
 	 *
 	 * @param f the float to write
 	 * @return the current {@link ByteBuffer} instance
@@ -299,7 +296,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the double 'd' to the buffer.
+	 * Writes the double {@code d} to the buffer.
 	 *
 	 * @param d the double to write
 	 * @return the current {@link ByteBuffer} instance
@@ -310,7 +307,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the boolean 'b' to the buffer as one byte.
+	 * Writes the boolean {@code b} to the buffer as one byte.
 	 * ({@code 0b00000001 = true} or {@code 0b00000000 = false})
 	 *
 	 * @param b the boolean to write
@@ -322,7 +319,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the char 'c' to the buffer.
+	 * Writes the char {@code c} to the buffer.
 	 *
 	 * @param c the char to write
 	 * @return the current {@link ByteBuffer} instance
@@ -333,7 +330,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link String} 's' and its length to the buffer.
+	 * Writes the {@link String} {@code s} and its length to the buffer.
 	 *
 	 * @param s the {@link String} to write
 	 * @return the current {@link ByteBuffer} instance
@@ -357,7 +354,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the name of the {@link Enum} value 'e' to the buffer as a string.
+	 * Writes the name of the {@link Enum} value {@code e} to the buffer as a string.
 	 *
 	 * @param e the enum value to write
 	 * @return the current {@link ByteBuffer} instance
@@ -505,7 +502,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link UUID} 'u' to the buffer as two longs.
+	 * Writes the {@link UUID} {@code u} to the buffer as two longs.
 	 *
 	 * @param u the {@link UUID} to write
 	 * @return the current {@link ByteBuffer} instance
@@ -524,7 +521,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link Instant} 'i' to the buffer as one long and one int.
+	 * Writes the {@link Instant} {@code i} to the buffer as one long and one int.
 	 *
 	 * @param i the {@link Instant} to write
 	 * @return the current {@link ByteBuffer} instance
@@ -849,7 +846,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads 'n' bytes from the buffer. If {@code n == -1} all bytes are read.
+	 * Reads {@code n} bytes from the buffer. If {@code n == -1} all bytes are read.
 	 *
 	 * @param n the count of the bytes to read
 	 * @return an array of the bytes read
@@ -868,7 +865,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads bytes until 'toByte' is read.
+	 * Reads bytes until {@code toByte} is read.
 	 *
 	 * @param toByte the byte to read to
 	 * @return an array of the bytes read
@@ -1001,7 +998,7 @@ public class ByteBuffer {
 	
 	/**
 	 * Reads a string from the buffer and interprets it as an {@link Enum} value
-	 * of the class 'e'.
+	 * of the class {@code e}.
 	 *
 	 * @param <T> the type of the enum to read
 	 * @param e   the class of the {@link Enum}
@@ -1057,8 +1054,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads 'length' bytes from the buffer and interprets them as a
-	 * {@link String}.
+	 * Reads {@code length} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @param length the number of bytes to read
 	 * @return the {@link String} read
@@ -1069,8 +1065,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads 'length' bytes from the buffer and interprets them as a
-	 * {@link String}.
+	 * Reads {@code length} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @param length the number of bytes to read
 	 * @return the {@link String} read
@@ -1110,12 +1105,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one long and one int from the buffer and interprets them as an
-	 * {@link Instant}.
+	 * Reads one long and one unsigned int from the buffer and interprets them as an {@link Instant}.
 	 *
 	 * @return the {@link Instant} read
 	 * @see #readLong()
-	 * @see #readVarInt()
+	 * @see #readUnsignedVarInt()
 	 * @see Instant#ofEpochSecond(long, long)
 	 */
 	public Instant readInstant() {
@@ -1321,8 +1315,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Transfers all bytes of this {@link ByteBuffer} to the {@link ByteBuffer}
-	 * 'buf'.
+	 * Transfers all bytes of this {@link ByteBuffer} to the {@link ByteBuffer} {@code buf}.
 	 *
 	 * @param buf the {@link ByteBuffer} to transfer to
 	 * @return the current {@link ByteBuffer} instance
@@ -1335,8 +1328,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Transfers all bytes of th {@link ByteBuffer} 'buf' to this
-	 * {@link ByteBuffer}.
+	 * Transfers all bytes of th {@link ByteBuffer} {@code buf} to this {@link ByteBuffer}.
 	 *
 	 * @param buf the {@link ByteBuffer} to transfer from
 	 * @return the current {@link ByteBuffer} instance
@@ -1347,12 +1339,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes all non-written bytes of this {@link ByteBuffer} to the
-	 * {@link OutputStream} 'out'.
+	 * Writes all non-written bytes of this {@link ByteBuffer} to the {@link OutputStream} {@code out}.
 	 *
-	 * @param out - the {@link OutputStream} to which it will write
+	 * @param out the {@link OutputStream} to which it will write
 	 * @return the current {@link ByteBuffer} instance
-	 * @throws IOException if an I/O error occures
+	 * @throws IOException if an I/O error occurs
 	 * @see #readAll()
 	 */
 	public ByteBuffer writeToOutputStream(final OutputStream out) throws IOException {
@@ -1363,12 +1354,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads all bytes from the {@link InputStream} 'in' and stores it in the
-	 * current instance.
+	 * Reads all bytes from the {@link InputStream} {@code in} and stores it in the current instance.
 	 *
-	 * @param in - the {@link InputStream} from which it will read
+	 * @param in the {@link InputStream} from which it will read
 	 * @return the current {@link ByteBuffer} instance
-	 * @throws IOException if an I/O error occurres.
+	 * @throws IOException if an I/O error occurs
 	 */
 	public ByteBuffer readFromInputStream(final InputStream in) throws IOException {
 		while(in.available() > 0)
@@ -1458,8 +1448,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Returns all non-written bytes of this {@link ByteBuffer} in form of a
-	 * byte[].
+	 * Returns all non-written bytes of this {@link ByteBuffer} in form of a byte array.
 	 *
 	 * @return the non-written bytes
 	 */
@@ -1500,8 +1489,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this
-	 * {@link ByteBuffer} instance encoded with BASE64.
+	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this {@link ByteBuffer} instance encoded with BASE64.
 	 *
 	 * @return the newly constructed {@link ByteBuffer} instance
 	 * @see #ByteBuffer(ByteBuffer)
@@ -1512,8 +1500,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this
-	 * {@link ByteBuffer} instance decoded with BASE64.
+	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this {@link ByteBuffer} instance decoded with BASE64.
 	 *
 	 * @return the newly constructed {@link ByteBuffer} instance
 	 * @see #copy()
@@ -1553,12 +1540,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads all bytes from the {@link InputStream} 'in' and stores them in a
-	 * new instance.
+	 * Reads all bytes from the {@link InputStream} {@code in} and stores them in a new instance.
 	 *
-	 * @param in - the {@link InputStream} from which the method will read
+	 * @param in the {@link InputStream} from which the method will read
 	 * @return the new {@link ByteBuffer} instance
-	 * @throws IOException if an I/O error occurres.
+	 * @throws IOException if an I/O error occurs
 	 * @see #empty()
 	 * @see #readFromInputStream(InputStream)
 	 */

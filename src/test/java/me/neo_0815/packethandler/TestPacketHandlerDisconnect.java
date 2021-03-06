@@ -14,7 +14,7 @@ import java.util.UUID;
 public class TestPacketHandlerDisconnect {
 	private static Client client;
 	
-	public static final long START_TIME = System.currentTimeMillis();
+	private static final long START_TIME = System.currentTimeMillis();
 	
 	public static void main(final String[] args) throws IOException {
 		final PacketConstructionMode conMode = PacketConstructionMode.DEFAULT;
