@@ -5,7 +5,6 @@ import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.Properties;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
-import me.neo_0815.packethandler.packet.system.PacketConnect;
 import me.neo_0815.packethandler.packet.system.PacketDisconnect;
 import me.neo_0815.packethandler.packet.system.PacketWake;
 import me.neo_0815.packethandler.packet.system.SystemPacketType;
@@ -24,14 +23,15 @@ public class ClientConnection extends Connection {
 	private UUID uuid;
 	
 	long lastPacket;
+	int clearingCount;
 	
-	public ClientConnection(final Server server, final Socket client, final UUID uuid, final Properties properties) throws IOException {
-		super(client != null ? client.getOutputStream() : null, properties);
+	public ClientConnection(final Server server, final Socket socket, final UUID uuid, final Properties properties) throws IOException {
+		super(socket, properties);
 		
 		this.server = server;
 		this.uuid = uuid;
 		
-		initThreads(client);
+		resetClearing();
 	}
 	
 	protected void changeUUID(final UUID uuid) {
@@ -42,7 +42,7 @@ public class ClientConnection extends Connection {
 	
 	@Override
 	protected void onPacketReceived(final PacketBase<?> packet, final long id) {
-		resetLastPacket();
+		resetClearing();
 		
 		server.onPacketReceived(uuid, packet, id);
 	}
@@ -50,7 +50,7 @@ public class ClientConnection extends Connection {
 	@Override
 	protected void onSystemPacketReceived(final PacketBase<?> packet) {
 		if(packet instanceof PacketDisconnect) stop();
-		else if(packet instanceof PacketWake || packet instanceof PacketConnect) resetLastPacket();
+		else if(packet instanceof PacketWake) resetClearing();
 		
 		server.onSystemPacketReceived(uuid, packet);
 	}
@@ -62,12 +62,18 @@ public class ClientConnection extends Connection {
 	
 	@Override
 	protected void onMessageReceived(final String message) {
-		resetLastPacket();
+		resetClearing();
 		
 		server.onMessageReceived(uuid, message);
 	}
 	
-	private void resetLastPacket() {
+	private void resetClearing() {
 		lastPacket = System.currentTimeMillis();
+		clearingCount = 0;
+	}
+	
+	@Override
+	public String toString() {
+		return "ClientConnection" + super.toString();
 	}
 }

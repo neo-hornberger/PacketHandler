@@ -8,6 +8,7 @@ import me.neo_0815.packethandler.packet.system.*;
 import me.neo_0815.packethandler.server.Server;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,92 +17,106 @@ import java.net.UnknownHostException;
 import java.util.UUID;
 
 /**
- * The abstract class Client represents a client that can communicate with a
- * {@link Server} instance.
+ * The abstract class Client represents a client that can communicate with a {@link Server} instance.
  *
  * @author Neo Hornberger
  */
 public abstract class Client extends Connection {
-	private final Socket socket;
 	
 	@Getter
 	private UUID uuid;
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at
-	 * 'host':'port'. (localhost:8080)
+	 * Constructs a new {@link Client} and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
 	 *
-	 * @param host the host name, or null for the loopback address
-	 * @param port the port number
+	 * @param port       the port number
+	 * @param properties the properties
 	 * @throws UnknownHostException if the IP address of the host could not be determined
-	 * @throws IOException          if an I/O error occurs when creating the socket
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
+	 */
+	public Client(final int port, final Properties properties) throws UnknownHostException, IOException {
+		this((String) null, port, properties);
+	}
+	
+	/**
+	 * Constructs a new {@link Client} and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
+	 *
+	 * @param host       the host name, or null for the loopback address
+	 * @param port       the port number
+	 * @param properties the properties
+	 * @throws UnknownHostException if the IP address of the host could not be determined
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
 	public Client(final String host, final int port, final Properties properties) throws UnknownHostException, IOException {
 		this(null, host, port, properties);
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at
-	 * 'address':'port'. (localhost:8080)
+	 * Constructs a new {@link Client} and connects it to the server at '{@code address}:{@code port}'. (localhost:8080)
 	 *
-	 * @param address the address, or null for the loopback address
-	 * @param port    the port number
-	 * @throws IOException if an I/O error occurs when creating the socket
+	 * @param address    the address
+	 * @param port       the port number
+	 * @param properties the properties
+	 * @throws UnknownHostException if the IP address of the host could not be determined
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
-	public Client(final InetAddress address, final int port, final Properties properties) throws IOException {
+	public Client(@NonNull final InetAddress address, final int port, final Properties properties) throws UnknownHostException, IOException {
 		this(null, address, port, properties);
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at
-	 * 'host':'port'. (localhost:8080)
+	 * Constructs a new {@link Client} and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
 	 *
-	 * @param uuid
-	 * @param host the host name, or null for the loopback address
-	 * @param port the port number
+	 * @param uuid       the uuid
+	 * @param port       the port number
+	 * @param properties the properties
 	 * @throws UnknownHostException if the IP address of the host could not be determined
-	 * @throws IOException          if an I/O error occurs when creating the socket
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
-	public Client(final UUID uuid, final String host, final int port, final Properties properties) throws UnknownHostException, IOException {
-		super(properties);
-		
-		this.uuid = uuid;
-		
-		socket = new Socket(host, port);
-		
-		init();
+	public Client(final UUID uuid, final int port, final Properties properties) throws UnknownHostException, IOException {
+		this(uuid, (String) null, port, properties);
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at
-	 * 'address':'port'. (localhost:8080)
+	 * Constructs a new {@link Client} and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
 	 *
-	 * @param uuid
-	 * @param address the address, or null for the loopback address
-	 * @param port    the port number
-	 * @throws IOException if an I/O error occurs when creating the socket
+	 * @param uuid       the uuid
+	 * @param host       the host name, or null for the loopback address
+	 * @param port       the port number
+	 * @param properties the properties
+	 * @throws UnknownHostException if the IP address of the host could not be determined
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
-	public Client(final UUID uuid, final InetAddress address, final int port, final Properties properties) throws IOException {
-		super(properties);
+	public Client(final UUID uuid, final String host, final int port, final Properties properties) throws UnknownHostException, IOException {
+		this(new Socket(host, port), properties, uuid);
+	}
+	
+	/**
+	 * Constructs a new {@link Client} and connects it to the server at ''{@code address}:{@code port}'. (localhost:8080)
+	 *
+	 * @param uuid       the uuid
+	 * @param address    the address
+	 * @param port       the port number
+	 * @param properties the properties
+	 * @throws UnknownHostException if the IP address of the host could not be determined
+	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
+	 */
+	public Client(final UUID uuid, @NonNull final InetAddress address, final int port, final Properties properties) throws UnknownHostException, IOException {
+		this(new Socket(address, port), properties, uuid);
+	}
+	
+	private Client(final Socket socket, @NonNull final Properties properties, final UUID uuid) throws IOException {
+		super(socket, properties);
 		
 		this.uuid = uuid;
-		
-		socket = new Socket(address, port);
-		
-		init();
 	}
 	
-	private void init() throws IOException {
-		setOut(socket.getOutputStream());
-		initThreads(socket);
-	}
-	
-	public void changeUUID(final UUID uuid) {
+	public void changeUUID(@NonNull final UUID uuid) {
 		sendPacket(SystemPacketType.CHANGE_UUID, PacketMap.of("uuid", uuid));
 	}
 	
 	@Override
-	protected final void onSystemPacketReceived(final PacketBase<?> packet) {
+	protected void onSystemPacketReceived(final PacketBase<?> packet) {
 		if(packet instanceof PacketDisconnect) {
 			stop();
 			
@@ -111,7 +126,7 @@ public abstract class Client extends Connection {
 			
 			onConnected();
 		}else if(packet instanceof PacketChangeUUID) onUUIDChanged(uuid, uuid = ((PacketChangeUUID) packet).uuid);
-		else if(packet instanceof PacketWake) sendPacket(SystemPacketType.WAKE);
+		else if(packet instanceof PacketWake && properties().isClearingEnabled()) sendPacket(SystemPacketType.WAKE);
 	}
 	
 	protected void onConnected() {
@@ -121,5 +136,10 @@ public abstract class Client extends Connection {
 	}
 	
 	protected void onUUIDChanged(final UUID oldUUID, final UUID newUUID) {
+	}
+	
+	@Override
+	public String toString() {
+		return "Client" + super.toString();
 	}
 }

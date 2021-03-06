@@ -1,6 +1,9 @@
 package me.neo_0815.packethandler;
 
 import me.neo_0815.encryption.Encryption;
+import me.neo_0815.packethandler.PacketConstructionMode.PacketIdPair;
+import me.neo_0815.packethandler.ThreadExecutors.ListeningThread;
+import me.neo_0815.packethandler.ThreadExecutors.PacketQueueThread;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
 import me.neo_0815.packethandler.packet.system.SystemPacketType;
@@ -8,42 +11,43 @@ import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.NonNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The class Connection represents the connection between a client and a server.
  *
  * @author Neo Hornberger
  */
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Connection extends PacketSender {
-	private final Connection INSTANCE = this;
+	private final Socket socket;
 	private final Properties properties;
 	
 	private OutputStream out;
-	private ListeningThread listeningThread;
+	private Future<?> listeningThread;
 	
 	@Getter(AccessLevel.PACKAGE)
-	@Accessors(fluent = true)
-	private PacketQueueThread packetQueueThread;
+	private final BlockingQueue<PacketIdPair> packetQueue = new LinkedBlockingQueue<>();
+	private Future<?> packetQueueThread;
 	
 	private boolean stopped = false;
 	
-	public Connection(final OutputStream out, final Properties properties) {
-		this(properties);
+	public Connection(@NonNull final Socket socket, @NonNull final Properties properties) throws IOException {
+		this.socket = socket;
+		this.properties = properties;
 		
-		this.out = out;
-	}
-	
-	protected final void setOut(final OutputStream out) {
-		if(this.out != null) throw new IllegalStateException("OutputStream has already been set");
-		
-		this.out = out;
+		try {
+			out = socket.getOutputStream();
+		}catch(final SocketException se) {
+			out = null;
+		}
 	}
 	
 	protected abstract void onPacketReceived(final PacketBase<?> packet, final long id);
@@ -69,55 +73,25 @@ public abstract class Connection extends PacketSender {
 	}
 	
 	/**
-	 * Initializes the {@link ListeningThread} and the {@link PacketQueueThread} with the {@link Socket} 'socket'.
-	 *
-	 * @param socket the {@link Socket} which will be used to construct the
-	 *               {@link ListeningThread} and the {@link PacketQueueThread}
-	 * @throws IOException if an I/O error occurs
-	 */
-	protected final void initThreads(final Socket socket) throws IOException {
-		if(listeningThread != null || packetQueueThread != null) return;
-		
-		listeningThread = new ListeningThread(socket) {
-			
-			@Override
-			protected Connection connection() {
-				return INSTANCE;
-			}
-		};
-		packetQueueThread = new PacketQueueThread(socket) {
-			
-			@Override
-			protected Connection connection() {
-				return INSTANCE;
-			}
-		};
-	}
-	
-	/**
 	 * Starts the {@link ListeningThread} and the {@link PacketQueueThread}.
-	 *
-	 * @see Thread#start()
 	 */
-	public void start() {
-		if(listeningThread != null && packetQueueThread != null) {
-			listeningThread.start();
-			packetQueueThread.start();
+	public void start() throws IOException {
+		if(listeningThread == null && packetQueueThread == null) {
+			listeningThread = ThreadExecutors.LISTENING_THREAD_SERVICE.submit(new ListeningThread(this, socket.getInputStream()));
+			packetQueueThread = ThreadExecutors.PACKET_QUEUE_THREAD_SERVICE.submit(new PacketQueueThread(this));
 		}
 	}
 	
 	/**
 	 * Interrupts the {@link ListeningThread} and the {@link PacketQueueThread}.
-	 *
-	 * @see Thread#interrupt()
 	 */
 	public void stop() {
 		if(listeningThread != null && packetQueueThread != null) {
-			listeningThread.interrupt();
-			packetQueueThread.interrupt();
+			listeningThread.cancel(true);
+			packetQueueThread.cancel(true);
 			
 			try {
-				out.close();
+				socket.close();
 			}catch(final IOException e) {
 				e.printStackTrace();
 			}
@@ -127,6 +101,8 @@ public abstract class Connection extends PacketSender {
 	}
 	
 	/**
+	 * Disconnects and stops the {@link Connection}.
+	 *
 	 * @see #stop()
 	 */
 	public void disconnect() {
@@ -175,5 +151,10 @@ public abstract class Connection extends PacketSender {
 	
 	public Encryption encryption() {
 		return properties.getEncryption();
+	}
+	
+	@Override
+	public String toString() {
+		return "[" + socket.getLocalSocketAddress() + " -> " + socket.getRemoteSocketAddress() + "]";
 	}
 }

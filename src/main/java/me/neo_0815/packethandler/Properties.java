@@ -4,17 +4,26 @@ import me.neo_0815.encryption.Encryption;
 import me.neo_0815.packethandler.registry.AbstractPacketRegistry;
 import me.neo_0815.packethandler.registry.DefaultPacketRegistry;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
+import lombok.experimental.FieldDefaults;
+
+import java.util.concurrent.TimeUnit;
 
 @Data
 @Accessors(chain = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Properties {
-	private boolean clearingEnabled = true, sendingConnectionPackets = true, encryptionEnabled = false;
-	private AbstractPacketRegistry packetRegistry = new DefaultPacketRegistry();
-	private PacketConstructionMode packetConstructionMode = PacketConstructionMode.DEFAULT;
-	private ByteBufferGenerator<?> byteBufferGenerator = ByteBufferGenerator.DEFAULT_GENERATOR;
-	private Encryption encryption;
+	boolean clearingEnabled = true, sendingConnectionPackets = true, encryptionEnabled = false;
+	@NonNull AbstractPacketRegistry packetRegistry = new DefaultPacketRegistry();
+	@NonNull PacketConstructionMode packetConstructionMode = PacketConstructionMode.DEFAULT;
+	@NonNull ByteBufferGenerator<?> byteBufferGenerator = ByteBufferGenerator.DEFAULT_GENERATOR;
+	@NonNull Encryption encryption = null;
+	long clearingInterval = 10_000L;
+	@NonNull TimeUnit clearingIntervalUnit = TimeUnit.MILLISECONDS;
+	int clearingPromptCount = 5;
 	
 	public boolean isRaw() {
 		return !clearingEnabled && !sendingConnectionPackets;
@@ -38,6 +47,10 @@ public class Properties {
 		copy.packetConstructionMode = packetConstructionMode;
 		copy.byteBufferGenerator = byteBufferGenerator;
 		copy.encryption = encryption;
+		
+		copy.clearingInterval = clearingInterval;
+		copy.clearingIntervalUnit = clearingIntervalUnit;
+		copy.clearingPromptCount = clearingPromptCount;
 		
 		return copy;
 	}

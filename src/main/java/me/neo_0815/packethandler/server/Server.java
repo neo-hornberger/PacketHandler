@@ -3,6 +3,9 @@ package me.neo_0815.packethandler.server;
 import me.neo_0815.packethandler.PacketMap;
 import me.neo_0815.packethandler.PacketSender;
 import me.neo_0815.packethandler.Properties;
+import me.neo_0815.packethandler.ThreadExecutors;
+import me.neo_0815.packethandler.ThreadExecutors.NamedThreadRunnable;
+import me.neo_0815.packethandler.ThreadExecutors.RepeatableRunnable;
 import me.neo_0815.packethandler.client.Client;
 import me.neo_0815.packethandler.packet.PacketBase;
 import me.neo_0815.packethandler.packet.UnknownPacket;
@@ -21,11 +24,12 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
 import java.util.function.Consumer;
 
 /**
- * The abstract class Server represents a server on which {@link Client}s can
- * connect to.
+ * The abstract class Server represents a server on which {@link Client}s can connect to.
  *
  * @author Neo Hornberger
  */
@@ -34,17 +38,17 @@ public abstract class Server {
 	
 	private final ServerSocket socket;
 	private final Properties properties;
-	private final Thread acceptingThread;
 	
 	private final Set<UUID> uuids = new HashSet<>();
 	private final Map<UUID, ClientConnection> clients = new HashMap<>();
 	private final Map<UUID, ClientGroup> clientGroups = new HashMap<>();
 	
-	private Thread clearingThread;
+	private Future<?> acceptingThread;
+	private ScheduledFuture<?> clearingThread;
 	private boolean haltAccepting = false, blockConnecting = false;
 	
 	/**
-	 * Constructs a new {@link Server} and bind it to the port 'port'.
+	 * Constructs a new {@link Server} and binds it to the {@code port}.
 	 *
 	 * @param port the port the {@link Server} will bound to
 	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
@@ -53,88 +57,38 @@ public abstract class Server {
 		this((InetAddress) null, port, properties);
 	}
 	
+	/**
+	 * Constructs a new {@link Server} and binds it to the {@code bindAddress} on {@code port}.
+	 *
+	 * @param bindAddress the address the {@link Server} will be bound to
+	 * @param port        the port the {@link Server} will be bound to
+	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
+	 */
 	public Server(final String bindAddress, final int port, final Properties properties) throws IOException {
 		this(InetAddress.getByName(bindAddress), port, properties);
 	}
 	
-	public Server(final InetAddress bindAddress, final int port, final Properties properties) throws IOException {
+	/**
+	 * Constructs a new {@link Server} and binds it to the {@code bindAddress} on {@code port}.
+	 *
+	 * @param bindAddress the address the {@link Server} will be bound to
+	 * @param port        the port the {@link Server} will be bound to
+	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
+	 */
+	public Server(final InetAddress bindAddress, final int port, @NonNull final Properties properties) throws IOException {
 		socket = new ServerSocket(port, 0, bindAddress);
 		
 		this.properties = properties;
-		
-		acceptingThread = new Thread("Accepting-Thread -- " + socket.getLocalPort()) {
-			
-			@Override
-			public void run() {
-				while(!isInterrupted())
-					try {
-						final Socket client = socket.accept();
-						
-						if(haltAccepting) {
-							if(blockConnecting) client.close();
-						}else {
-							final UUID uuid = newUUID();
-							final ClientConnection clientCon = new ClientConnection(INSTANCE, client, uuid, properties.copy());
-							
-							synchronized(clients) {
-								clients.put(uuid, clientCon);
-							}
-							
-							if(properties.isSendingConnectionPackets())
-								clientCon.sendPacket(SystemPacketType.CONNECT, PacketMap.of("uuid", uuid));
-							
-							onClientConnected(uuid);
-							
-							clientCon.start();
-						}
-					}catch(final IOException e) {
-						e.printStackTrace();
-					}
-			}
-		};
-		
-		if(properties.isClearingEnabled()) clearingThread = new Thread("ClearingThread -- " + socket.getLocalPort()) {
-			private final LinkedList<UUID> toRemove = new LinkedList<>();
-			
-			@Override
-			public void run() {
-				while(!isInterrupted()) {
-					toRemove.clear();
-					
-					final long currentTime = System.currentTimeMillis();
-					
-					synchronized(clients) {
-						clients.forEach((uuid, client) -> {
-							final long currentDiff = currentTime - client.lastPacket;
-							
-							if(currentDiff > 50_000) disconnectClient(uuid);
-							else if(currentDiff > 10_000) client.sendPacket(SystemPacketType.WAKE);
-							
-							if(client.isStopped()) toRemove.add(uuid);
-						});
-						
-						toRemove.forEach(clients::remove);
-					}
-					
-					try {
-						Thread.sleep(10_000); // TODO make user-controllable
-					}catch(final InterruptedException e) {
-						break;
-					}
-				}
-			}
-		};
 	}
 	
 	/**
 	 * Starts the accepting thread of this {@link Server}.
-	 *
-	 * @see Thread#start()
 	 */
 	public void start() {
-		acceptingThread.start();
+		acceptingThread = ThreadExecutors.ACCEPTING_THREAD_SERVICE.submit(new AcceptingThread());
 		
-		if(properties.isClearingEnabled()) clearingThread.start();
+		if(properties.isClearingEnabled())
+			clearingThread = ThreadExecutors.CLEARING_THREAD_SERVICE.scheduleWithFixedDelay(new ClearingThread(), 0L, properties.getClearingInterval(), properties.getClearingIntervalUnit());
 	}
 	
 	public void halt() {
@@ -154,13 +108,12 @@ public abstract class Server {
 	/**
 	 * Interrupts the accepting thread of this {@link Server} and disconnects all {@link ClientConnection}s.
 	 *
-	 * @see Thread#interrupt()
 	 * @see #disconnectAll()
 	 */
 	public void stop() {
-		acceptingThread.interrupt();
+		acceptingThread.cancel(true);
 		
-		if(properties.isClearingEnabled()) clearingThread.interrupt();
+		if(properties.isClearingEnabled()) clearingThread.cancel(true);
 		
 		disconnectAll();
 	}
@@ -169,7 +122,6 @@ public abstract class Server {
 	 * Disconnects all {@link ClientConnection}s from the server.
 	 *
 	 * @see ClientConnection#disconnect()
-	 * @see Map#clear()
 	 */
 	@Synchronized("clients")
 	public void disconnectAll() {
@@ -185,6 +137,12 @@ public abstract class Server {
 		computeOnClientIfPresent(client, ClientConnection::stopEncryption);
 	}
 	
+	/**
+	 * Disconnects the client associated with the {@link UUID} {@code uuid} from the server.
+	 *
+	 * @param client the uuid
+	 * @see ClientConnection#disconnect()
+	 */
 	public void disconnectClient(final UUID client) {
 		computeOnClientIfPresent(client, ClientConnection::disconnect);
 		
@@ -318,7 +276,7 @@ public abstract class Server {
 	
 	protected abstract void onPacketReceived(final UUID client, final PacketBase<?> packet, final long id);
 	
-	protected final void onSystemPacketReceived(final UUID client, final PacketBase<?> packet) {
+	protected void onSystemPacketReceived(final UUID client, final PacketBase<?> packet) {
 		if(packet instanceof PacketDisconnect) {
 			synchronized(clients) {
 				clients.get(client).stop();
@@ -472,5 +430,71 @@ public abstract class Server {
 	@SuppressWarnings("unchecked")
 	public <R extends AbstractPacketRegistry> R getPacketRegistry(final UUID client) {
 		return client != null ? getClient(client).getPacketRegistry() : (R) properties.getPacketRegistry();
+	}
+	
+	@Override
+	public String toString() {
+		return "Server[" + socket.getLocalSocketAddress() + "]";
+	}
+	
+	private class AcceptingThread extends NamedThreadRunnable implements RepeatableRunnable {
+		
+		private AcceptingThread() {
+			super(" -- " + INSTANCE);
+		}
+		
+		@Override
+		public void run() {
+			super.run();
+			
+			RepeatableRunnable.super.run();
+		}
+		
+		@Override
+		public boolean repeat() {
+			try {
+				final Socket client = socket.accept();
+				
+				if(haltAccepting) {
+					if(blockConnecting) client.close();
+				}else {
+					final UUID uuid = newUUID();
+					final ClientConnection clientCon = new ClientConnection(INSTANCE, client, uuid, properties.copy());
+					
+					synchronized(clients) {
+						clients.put(uuid, clientCon);
+					}
+					
+					if(properties.isSendingConnectionPackets())
+						clientCon.sendPacket(SystemPacketType.CONNECT, PacketMap.of("uuid", uuid));
+					
+					onClientConnected(uuid);
+					
+					clientCon.start();
+				}
+			}catch(final IOException e) {
+				e.printStackTrace();
+			}
+			
+			return true;
+		}
+	}
+	
+	private class ClearingThread implements Runnable {
+		
+		@Override
+		public void run() {
+			synchronized(clients) {
+				final long currentTime = System.currentTimeMillis();
+				
+				new HashMap<>(clients).forEach((uuid, client) -> {
+					final long currentDiff = currentTime - client.lastPacket;
+					
+					if(client.clearingCount >= properties.getClearingPromptCount()) disconnectClient(uuid);
+					else if(currentDiff > properties.getClearingInterval())
+						client.sendPacket(SystemPacketType.WAKE, PacketMap.of("count", ++client.clearingCount));
+				});
+			}
+		}
 	}
 }
