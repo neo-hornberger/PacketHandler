@@ -11,7 +11,8 @@ import lombok.experimental.Accessors;
 public enum TestPacketType implements IPacketClassFactory {
 	PACKET(TestPacket.class),
 	JSON(TestJsonPacket.class),
-	EMPTY(TestEmptyPacket.class);
+	EMPTY(TestEmptyPacket.class),
+	ARRAY(TestArrayPacket.class);
 	
 	@Getter
 	@Accessors(fluent = true)

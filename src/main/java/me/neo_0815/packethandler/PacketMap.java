@@ -2,15 +2,16 @@ package me.neo_0815.packethandler;
 
 import lombok.EqualsAndHashCode;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @EqualsAndHashCode
 public class PacketMap implements Map<String, Object> {
-	private final HashMap<String, Object> map;
+	private final Map<String, Object> map;
 	
 	protected PacketMap() {
 		map = new HashMap<>();
@@ -103,9 +104,28 @@ public class PacketMap implements Map<String, Object> {
 		return map.entrySet();
 	}
 	
+	public Stream<Entry<String, Object>> stream() {
+		return entrySet().stream();
+	}
+	
 	@Override
 	public String toString() {
-		return map.toString();
+		return stream()
+				.map(entry -> {
+					final Object value = entry.getValue();
+					
+					String valueString = value.toString();
+					if(value.getClass().isArray()) {
+						if(value instanceof Object[]) valueString = Arrays.deepToString((Object[]) value);
+						else valueString = IntStream.range(0, Array.getLength(value))
+								.mapToObj(i -> Array.get(value, i))
+								.map(String::valueOf)
+								.collect(Collectors.joining(", ", "[", "]"));
+					}
+					
+					return entry.getKey() + "=" + valueString;
+				})
+				.collect(Collectors.joining(", ", "{", "}"));
 	}
 	
 	public static PacketMap of() {

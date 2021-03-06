@@ -34,6 +34,14 @@ public class TestPacketExecutor {
 		};
 		
 		System.out.println(executor.execute(null, 2));
+		
+		final TestArrayPacket tap = new TestArrayPacket();
+		tap.uuids = new UUID[2];
+		tap.uuids[0] = UUID.randomUUID();
+		tap.ints = new int[2];
+		tap.ints[0] = 42;
+		tap.ints[1] = 69;
+		System.out.println(tap);
 	}
 	
 	public static void wow(final TestEmptyPacket packet, final long id) {
