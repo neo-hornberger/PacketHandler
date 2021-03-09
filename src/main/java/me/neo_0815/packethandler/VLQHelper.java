@@ -5,10 +5,8 @@ import java.math.BigInteger;
 import static java.math.BigInteger.ZERO;
 
 /**
- * LE: <a href=
- * "https://en.wikipedia.org/wiki/LEB128">https://en.wikipedia.org/wiki/LEB128</a><br/>
- * BE: <a href=
- * "https://en.wikipedia.org/wiki/Variable-length_quantity">https://en.wikipedia.org/wiki/Variable-length_quantity</a>
+ * LE: <a href="https://en.wikipedia.org/wiki/LEB128">https://en.wikipedia.org/wiki/LEB128</a><br/>
+ * BE: <a href="https://en.wikipedia.org/wiki/Variable-length_quantity">https://en.wikipedia.org/wiki/Variable-length_quantity</a>
  */
 public class VLQHelper {
 	
