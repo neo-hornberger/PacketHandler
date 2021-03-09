@@ -356,7 +356,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link String} {@code s} and its length to the buffer.
+	 * Writes the {@link String} {@code s} length-prefixed to the buffer.
 	 *
 	 * @param s the {@link String} to write
 	 *
@@ -370,7 +370,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link String} {@code s} and its length to the buffer.
+	 * Writes the {@link String} {@code s} length-prefixed to the buffer.
 	 *
 	 * @param s       the {@link String} to write
 	 * @param charset the {@link Charset} to be used to encode the {@link String}
@@ -575,17 +575,11 @@ public class ByteBuffer {
 	 *
 	 * @return the current instance
 	 *
-	 * @see #writeUnsignedVarInt(int)
 	 * @see BigInteger#toByteArray()
-	 * @see #write(byte[])
+	 * @see #writeByteArray(byte[])
 	 */
 	public ByteBuffer writeBigInteger(final BigInteger bi) {
-		final byte[] bytes = bi.toByteArray();
-		
-		writeUnsignedVarInt(bytes.length);
-		write(bytes);
-		
-		return this;
+		return writeByteArray(bi.toByteArray());
 	}
 	
 	/**
@@ -596,7 +590,7 @@ public class ByteBuffer {
 	 * @return the current instance
 	 *
 	 * @see BigDecimal#unscaledValue()
-	 * @see #writeVarBigInt(BigInteger)
+	 * @see #writeBigInteger(BigInteger)
 	 * @see BigDecimal#scale()
 	 * @see #writeVarInt(int)
 	 */
@@ -1398,6 +1392,14 @@ public class ByteBuffer {
 		return (char) readShort();
 	}
 	
+	/**
+	 * Reads an int {@code n} and {@code n} bytes from the buffer and interprets them as a {@link String}.
+	 *
+	 * @return the {@link String} read
+	 *
+	 * @see #charset
+	 * @see #readString(Charset)
+	 */
 	public String readString() {
 		return readString(charset);
 	}
@@ -1534,17 +1536,19 @@ public class ByteBuffer {
 	 *
 	 * @return the {@link BigInteger} read
 	 *
-	 * @see #readUnsignedVarInt()
-	 * @see #read(int)
+	 * @see #readByteArray()
 	 */
 	public BigInteger readBigInteger() {
-		return new BigInteger(read(readUnsignedVarInt()));
+		return new BigInteger(readByteArray());
 	}
 	
 	/**
 	 * Reads a scaled {@link BigInteger} from the buffer and interprets it as a {@link BigDecimal}.
 	 *
-	 * @return
+	 * @return the {@code BigDecimal} read
+	 *
+	 * @see #readBigInteger()
+	 * @see #readVarInt()
 	 */
 	public BigDecimal readBigDecimal() {
 		return new BigDecimal(readBigInteger(), readVarInt());
@@ -1557,6 +1561,7 @@ public class ByteBuffer {
 	 *
 	 * @return the {@link String} read
 	 *
+	 * @see #charset
 	 * @see #readFixedLengthString(int, Charset)
 	 */
 	public String readFixedLengthString(final int length) {
@@ -1844,6 +1849,16 @@ public class ByteBuffer {
 		return array;
 	}
 	
+	/**
+	 * Skips {@code n} bytes by reading them.
+	 *
+	 * @param n the number how many bytes will be skipped
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if {@code n} is negative
+	 * @see #read()
+	 */
 	public ByteBuffer skip(final int n) {
 		if(n < 0) throw new IllegalArgumentException("Cannot skip a negative amount of bytes");
 		
@@ -1885,6 +1900,11 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Reverses all bytes stored.
+	 *
+	 * @return the current instance
+	 */
 	public ByteBuffer reverse() {
 		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
 		
@@ -1923,6 +1943,15 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Encrypts this instance with the {@link Encryption} {@code encryption}.
+	 *
+	 * @param encryption the {@link Encryption} that will be used to encrypt
+	 *
+	 * @return the current instance
+	 *
+	 * @see Encryption#encrypt(byte[])
+	 */
 	public ByteBuffer encrypt(final Encryption encryption) {
 		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
 		
@@ -1931,6 +1960,15 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Decrypts this instance with the {@link Encryption} {@code encryption}.
+	 *
+	 * @param encryption the {@link Encryption} that will be used to decrypt
+	 *
+	 * @return the current instance
+	 *
+	 * @see Encryption#decrypt(byte[])
+	 */
 	public ByteBuffer decrypt(final Encryption encryption) {
 		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
 		
