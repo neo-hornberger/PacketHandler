@@ -19,7 +19,6 @@ import java.util.Base64.Encoder;
 import java.util.function.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -395,7 +394,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the name of the {@linkplain Enum enum value} {@code e} as a string to the buffer.
+	 * Writes the name of the {@linkplain Enum enum value} {@code e} to the buffer.
 	 *
 	 * @param e the enum value to write
 	 *
@@ -1275,9 +1274,13 @@ public class ByteBuffer {
 	 * @see #read()
 	 */
 	public byte[] readTo(final byte toByte) {
-		return IntStream.generate(this::read).takeWhile(b -> b != toByte).collect(ByteBuffer::new, ByteBuffer::write, ByteBuffer::transferFrom).toByteArray();
+		final ByteBuffer buf = new ByteBuffer();
 		
-		// readCursor--;
+		byte b;
+		while((b = read()) != toByte)
+			buf.write(b);
+		
+		return buf.toByteArray();
 	}
 	
 	public byte[] readTo(final int toByte) {
@@ -1341,9 +1344,15 @@ public class ByteBuffer {
 		final long l;
 		
 		if(byteOrder.isBigEndian())
-			l = (long) readUnsignedByte() << 56 | (long) readUnsignedByte() << 48 | (long) readUnsignedByte() << 40 | (long) readUnsignedByte() << 32 | (long) readUnsignedByte() << 24 | (long) readUnsignedByte() << 16 | (long) readUnsignedByte() << 8 | readUnsignedByte();
+			l = (long) readUnsignedByte() << 56 | (long) readUnsignedByte() << 48 | (long) readUnsignedByte() << 40
+					| (long) readUnsignedByte() << 32 | (long) readUnsignedByte() << 24
+					| (long) readUnsignedByte() << 16 | (long) readUnsignedByte() << 8
+					| readUnsignedByte();
 		else
-			l = readUnsignedByte() | (long) readUnsignedByte() << 8 | (long) readUnsignedByte() << 16 | (long) readUnsignedByte() << 24 | (long) readUnsignedByte() << 32 | (long) readUnsignedByte() << 40 | (long) readUnsignedByte() << 48 | (long) readUnsignedByte() << 56;
+			l = readUnsignedByte() | (long) readUnsignedByte() << 8 | (long) readUnsignedByte() << 16
+					| (long) readUnsignedByte() << 24 | (long) readUnsignedByte() << 32
+					| (long) readUnsignedByte() << 40 | (long) readUnsignedByte() << 48
+					| (long) readUnsignedByte() << 56;
 		
 		return l;
 	}
@@ -2122,9 +2131,9 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Returns all non-written bytes of this instance in form of a byte array.
+	 * Returns all remaining bytes of this instance in a byte array.
 	 *
-	 * @return the non-written bytes
+	 * @return the remaining bytes
 	 */
 	public byte[] toByteArray() {
 		return bytes.toArray(readCursor);
