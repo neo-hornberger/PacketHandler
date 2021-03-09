@@ -980,6 +980,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the byte array {@code bytes} to the buffer.
+	 *
+	 * @param bytes the byte array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #write(byte[])
+	 */
 	public ByteBuffer writeByteArray(final byte[] bytes) {
 		writeUnsignedVarInt(bytes.length);
 		write(bytes);
@@ -987,6 +997,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the short array {@code shorts} to the buffer.
+	 *
+	 * @param shorts the short array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeShort(short)
+	 */
 	public ByteBuffer writeShortArray(final short[] shorts) {
 		writeUnsignedVarInt(shorts.length);
 		
@@ -996,6 +1016,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the int array {@code ints} to the buffer.
+	 *
+	 * @param ints the int array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeInt(int)
+	 */
 	public ByteBuffer writeIntArray(final int[] ints) {
 		writeUnsignedVarInt(ints.length);
 		
@@ -1005,6 +1035,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the long array {@code longs} to the buffer.
+	 *
+	 * @param longs the long array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeLong(long)
+	 */
 	public ByteBuffer writeLongArray(final long[] longs) {
 		writeUnsignedVarInt(longs.length);
 		
@@ -1014,6 +1054,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the float array {@code floats} to the buffer.
+	 *
+	 * @param floats the float array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeFloat(float)
+	 */
 	public ByteBuffer writeFloatArray(final float[] floats) {
 		writeUnsignedVarInt(floats.length);
 		
@@ -1023,6 +1073,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the double array {@code doubles} to the buffer.
+	 *
+	 * @param doubles the double array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeDouble(double)
+	 */
 	public ByteBuffer writeDoubleArray(final double[] doubles) {
 		writeUnsignedVarInt(doubles.length);
 		
@@ -1032,6 +1092,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the boolean array {@code bools} to the buffer.
+	 *
+	 * @param bools the boolean array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeBoolean(boolean)
+	 */
 	public ByteBuffer writeBooleanArray(final boolean[] bools) {
 		writeUnsignedVarInt(bools.length);
 		
@@ -1041,6 +1111,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the char array {@code chars} to the buffer.
+	 *
+	 * @param chars the char array to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see #writeChar(char)
+	 */
 	public ByteBuffer writeCharArray(final char[] chars) {
 		writeUnsignedVarInt(chars.length);
 		
@@ -1050,6 +1130,19 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@linkplain T type} array {@code objs} to the buffer.
+	 *
+	 * @param objs   the {@linkplain T type} array to write
+	 * @param writer the {@link BiConsumer} that defines the writing behavior
+	 * @param <B>    the {@code ByteBuffer} type the current instance will be casted to
+	 * @param <T>    the type of the objects to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see BiConsumer#accept(Object, Object)
+	 */
 	@SuppressWarnings("unchecked")
 	public <B extends ByteBuffer, T> ByteBuffer writeArray(final T[] objs, final BiConsumer<B, T> writer) {
 		writeUnsignedVarInt(objs.length);
@@ -1146,7 +1239,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one byte from the buffer.
+	 * Reads a byte from the buffer.
 	 *
 	 * @return the byte read
 	 */
@@ -1324,8 +1417,8 @@ public class ByteBuffer {
 	/**
 	 * Reads a string from the buffer and interprets it as an {@link Enum} value of the class {@code e}.
 	 *
-	 * @param <T> the type of the {@link Enum} to read
 	 * @param e   the class of the {@link Enum}
+	 * @param <T> the type of the {@link Enum} to read
 	 *
 	 * @return the {@link Enum} value read
 	 *
@@ -1335,46 +1428,124 @@ public class ByteBuffer {
 		return Enum.valueOf(e, readNullTerminatedString());
 	}
 	
+	/**
+	 * Reads an unsigned byte from the buffer.
+	 *
+	 * @return the unsigned byte read
+	 *
+	 * @see #read()
+	 */
 	public int readUnsignedByte() {
 		return read() & 0xFF;
 	}
 	
+	/**
+	 * Reads an unsigned short from the buffer.
+	 *
+	 * @return the unsigned short read
+	 *
+	 * @see #readShort()
+	 * @see Short#toUnsignedInt(short)
+	 */
 	public int readUnsignedShort() {
 		return Short.toUnsignedInt(readShort());
 	}
 	
+	/**
+	 * Reads an unsigned int from the buffer.
+	 *
+	 * @return the unsigned int read
+	 *
+	 * @see #readInt()
+	 * @see Integer#toUnsignedLong(int)
+	 */
 	public long readUnsignedInt() {
 		return Integer.toUnsignedLong(readInt());
 	}
 	
+	/**
+	 * Reads an int in the variable-length format from the buffer.
+	 *
+	 * @return the int read
+	 *
+	 * @see VLQHelper.VLQInt#decodeSLE(ByteBuffer)
+	 */
 	public int readVarInt() {
 		return VLQHelper.VLQInt.decodeSLE(this);
 	}
 	
+	/**
+	 * Reads a long in the variable-length format from the buffer.
+	 *
+	 * @return the long read
+	 *
+	 * @see VLQHelper.VLQLong#decodeSLE(ByteBuffer)
+	 */
 	public long readVarLong() {
 		return VLQHelper.VLQLong.decodeSLE(this);
 	}
 	
+	/**
+	 * Reads a {@link BigInteger} in the variable-length format from the buffer.
+	 *
+	 * @return the {@link BigInteger} read
+	 *
+	 * @see VLQHelper.VLQBigInt#decodeSLE(ByteBuffer)
+	 */
 	public BigInteger readVarBigInt() {
 		return VLQHelper.VLQBigInt.decodeSLE(this);
 	}
 	
+	/**
+	 * Reads a non-negative int in the variable-length format from the buffer.
+	 *
+	 * @return the non-negative int read
+	 *
+	 * @see VLQHelper.VLQInt#decodeULE(ByteBuffer)
+	 */
 	public int readUnsignedVarInt() {
 		return VLQHelper.VLQInt.decodeULE(this);
 	}
 	
+	/**
+	 * Reads a non-negative long in the variable-length format from the buffer.
+	 *
+	 * @return the non-negative long read
+	 *
+	 * @see VLQHelper.VLQLong#decodeULE(ByteBuffer)
+	 */
 	public long readUnsignedVarLong() {
 		return VLQHelper.VLQLong.decodeULE(this);
 	}
 	
+	/**
+	 * Reads a non-negative {@link BigInteger} in the variable-length format from the buffer.
+	 *
+	 * @return the non-negative {@link BigInteger} read
+	 *
+	 * @see VLQHelper.VLQBigInt#decodeULE(ByteBuffer)
+	 */
 	public BigInteger readUnsignedVarBigInt() {
 		return VLQHelper.VLQBigInt.decodeULE(this);
 	}
 	
+	/**
+	 * Reads a length-prefixed byte array from the buffer and interprets it as a {@link BigInteger}.
+	 *
+	 * @return the {@link BigInteger} read
+	 *
+	 * @see #readUnsignedVarInt()
+	 * @see #read(int)
+	 */
 	public BigInteger readBigInteger() {
 		return new BigInteger(read(readUnsignedVarInt()));
 	}
 	
+	/**
+	 * Reads a scaled {@link BigInteger} from the buffer and interprets it as a {@link BigDecimal}.
+	 *
+	 * @return
+	 */
 	public BigDecimal readBigDecimal() {
 		return new BigDecimal(readBigInteger(), readVarInt());
 	}
