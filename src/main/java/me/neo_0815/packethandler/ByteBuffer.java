@@ -1570,13 +1570,7 @@ public class ByteBuffer {
 	}
 	
 	public byte[] readByteArray() {
-		final int length = readUnsignedVarInt();
-		final byte[] bytes = new byte[length];
-		
-		for(int i = 0; i < length; i++)
-			bytes[i] = read();
-		
-		return bytes;
+		return read(readUnsignedVarInt());
 	}
 	
 	public short[] readShortArray() {
