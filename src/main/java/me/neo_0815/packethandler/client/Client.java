@@ -97,7 +97,7 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new instance and connects it to the server at ''{@code address}:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at '{@code address}:{@code port}'. (localhost:8080)
 	 *
 	 * @param uuid       the uuid
 	 * @param address    the address
