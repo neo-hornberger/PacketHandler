@@ -1239,7 +1239,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads a byte from the buffer.
+	 * Reads one byte from the buffer.
 	 *
 	 * @return the byte read
 	 */
