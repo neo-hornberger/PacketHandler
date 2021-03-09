@@ -16,11 +16,11 @@ import java.util.function.Function;
 public abstract class AbstractPacketExecutor {
 	private final Function<UUID, AbstractPacketRegistry> registryFunction;
 	
-	AbstractPacketExecutor(final Connection connection) {
+	public AbstractPacketExecutor(final Connection connection) {
 		this(__ -> connection.registry());
 	}
 	
-	AbstractPacketExecutor(final Server server) {
+	public AbstractPacketExecutor(final Server server) {
 		this(server::registry);
 	}
 	
