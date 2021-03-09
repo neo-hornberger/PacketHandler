@@ -27,10 +27,11 @@ public abstract class Client extends Connection {
 	private UUID uuid;
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
 	 *
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
@@ -39,11 +40,12 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
 	 *
 	 * @param host       the host name, or null for the loopback address
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
@@ -52,11 +54,12 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at '{@code address}:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at '{@code address}:{@code port}'. (localhost:8080)
 	 *
 	 * @param address    the address
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
@@ -65,11 +68,12 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at 'localhost:{@code port}'. (localhost:8080)
 	 *
 	 * @param uuid       the uuid
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
@@ -78,12 +82,13 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at '{@code host}:{@code port}'. (localhost:8080)
 	 *
 	 * @param uuid       the uuid
 	 * @param host       the host name, or null for the loopback address
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */
@@ -92,12 +97,13 @@ public abstract class Client extends Connection {
 	}
 	
 	/**
-	 * Constructs a new {@link Client} and connects it to the server at ''{@code address}:{@code port}'. (localhost:8080)
+	 * Constructs a new instance and connects it to the server at ''{@code address}:{@code port}'. (localhost:8080)
 	 *
 	 * @param uuid       the uuid
 	 * @param address    the address
 	 * @param port       the port number
 	 * @param properties the properties
+	 *
 	 * @throws UnknownHostException if the IP address of the host could not be determined
 	 * @throws IOException          if an I/O error occurs when creating the {@link Socket}
 	 */

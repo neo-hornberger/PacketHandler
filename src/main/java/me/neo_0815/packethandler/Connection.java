@@ -101,7 +101,7 @@ public abstract class Connection extends PacketSender {
 	}
 	
 	/**
-	 * Disconnects and stops the {@link Connection}.
+	 * Disconnects and stops the connection.
 	 *
 	 * @see #stop()
 	 */

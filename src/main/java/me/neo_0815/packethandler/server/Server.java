@@ -48,9 +48,10 @@ public abstract class Server {
 	private boolean haltAccepting = false, blockConnecting = false;
 	
 	/**
-	 * Constructs a new {@link Server} and binds it to the {@code port}.
+	 * Constructs a new instance and binds it to the {@code port}.
 	 *
-	 * @param port the port the {@link Server} will bound to
+	 * @param port the port the server will be bound to
+	 *
 	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
 	 */
 	public Server(final int port, final Properties properties) throws IOException {
@@ -58,10 +59,11 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Constructs a new {@link Server} and binds it to the {@code bindAddress} on {@code port}.
+	 * Constructs a new instance and binds it to the {@code bindAddress} on {@code port}.
 	 *
-	 * @param bindAddress the address the {@link Server} will be bound to
-	 * @param port        the port the {@link Server} will be bound to
+	 * @param bindAddress the address the server will be bound to
+	 * @param port        the port the server will be bound to
+	 *
 	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
 	 */
 	public Server(final String bindAddress, final int port, final Properties properties) throws IOException {
@@ -69,10 +71,11 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Constructs a new {@link Server} and binds it to the {@code bindAddress} on {@code port}.
+	 * Constructs a new instance and binds it to the {@code bindAddress} on {@code port}.
 	 *
-	 * @param bindAddress the address the {@link Server} will be bound to
-	 * @param port        the port the {@link Server} will be bound to
+	 * @param bindAddress the address the server will be bound to
+	 * @param port        the port the server will be bound to
+	 *
 	 * @throws IOException if an I/O error occurs when opening the {@link ServerSocket}
 	 */
 	public Server(final InetAddress bindAddress, final int port, @NonNull final Properties properties) throws IOException {
@@ -82,7 +85,7 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Starts the accepting thread of this {@link Server}.
+	 * Starts the accepting thread of this instance.
 	 */
 	public void start() {
 		acceptingThread = ThreadExecutors.ACCEPTING_THREAD_SERVICE.submit(new AcceptingThread());
@@ -106,7 +109,7 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Interrupts the accepting thread of this {@link Server} and disconnects all {@link ClientConnection}s.
+	 * Interrupts the accepting thread of this instance and disconnects all {@linkplain ClientConnection connections}.
 	 *
 	 * @see #disconnectAll()
 	 */
@@ -119,7 +122,7 @@ public abstract class Server {
 	}
 	
 	/**
-	 * Disconnects all {@link ClientConnection}s from the server.
+	 * Disconnects all {@linkplain ClientConnection clients} from the server.
 	 *
 	 * @see ClientConnection#disconnect()
 	 */
@@ -141,6 +144,7 @@ public abstract class Server {
 	 * Disconnects the client associated with the {@link UUID} {@code uuid} from the server.
 	 *
 	 * @param client the uuid
+	 *
 	 * @see ClientConnection#disconnect()
 	 */
 	public void disconnectClient(final UUID client) {
