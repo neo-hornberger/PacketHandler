@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 /**
  * The class ByteBuffer stores bytes that will be sent through an {@link OutputStream} and reads bytes from an {@link InputStream}.
- * All types that use more than one byte are stored in the chosen byte-order format.
+ * All types that use more than one byte are stored in the {@linkplain #byteOrder chosen byte-order} format.
  *
  * @author Neo Hornberger
  */
