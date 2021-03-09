@@ -1125,9 +1125,9 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@linkplain T type} array {@code objs} to the buffer.
+	 * Writes the type array {@code objs} to the buffer.
 	 *
-	 * @param objs   the {@linkplain T type} array to write
+	 * @param objs   the type array to write
 	 * @param writer the {@link BiConsumer} that defines the writing behavior
 	 * @param <B>    the {@code ByteBuffer} type the current instance will be casted to
 	 * @param <T>    the type of the objects to write
