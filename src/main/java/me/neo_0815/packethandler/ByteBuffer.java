@@ -1239,7 +1239,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one byte from the buffer.
+	 * Reads a byte from the buffer.
 	 *
 	 * @return the byte read
 	 */
@@ -1355,7 +1355,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one int from the buffer and interprets it as a float.
+	 * Reads an int from the buffer and interprets it as a float.
 	 *
 	 * @return the float read
 	 *
@@ -1366,7 +1366,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one long from the buffer and interprets it as a double.
+	 * Reads a long from the buffer and interprets it as a double.
 	 *
 	 * @return the double read
 	 *
@@ -1377,7 +1377,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one byte from the buffer and interprets it as a boolean.
+	 * Reads a byte from the buffer and interprets it as a boolean.
 	 *
 	 * @return the boolean read
 	 *
@@ -1388,7 +1388,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one short from the buffer and interprets it as a char.
+	 * Reads a short from the buffer and interprets it as a char.
 	 *
 	 * @return the char read
 	 *
@@ -1403,7 +1403,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one int {@code n} and {@code n} bytes from the buffer and interprets them as a {@link String}.
+	 * Reads an int {@code n} and {@code n} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @return the {@link String} read
 	 *
