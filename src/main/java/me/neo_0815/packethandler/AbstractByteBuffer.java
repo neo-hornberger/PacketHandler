@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.time.*;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 public abstract class AbstractByteBuffer<B extends AbstractByteBuffer<B>> extends ByteBuffer {
@@ -335,85 +336,64 @@ public abstract class AbstractByteBuffer<B extends AbstractByteBuffer<B>> extend
 	}
 	
 	@Override
-	public B writeArray(final byte[] bytes) {
+	public B writeByteArray(final byte[] bytes) {
 		super.writeArray(bytes);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public B writeArray(final short[] shorts) {
+	public B writeShortArray(final short[] shorts) {
 		super.writeArray(shorts);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public B writeArray(final int[] ints) {
+	public B writeIntArray(final int[] ints) {
 		super.writeArray(ints);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public B writeArray(final long[] longs) {
+	public B writeLongArray(final long[] longs) {
 		super.writeArray(longs);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public B writeArray(final float[] floats) {
+	public B writeFloatArray(final float[] floats) {
 		super.writeArray(floats);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public B writeArray(final double[] doubles) {
+	public B writeDoubleArray(final double[] doubles) {
 		super.writeArray(doubles);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public ByteBuffer writeArray(final boolean[] bools) {
+	public B writeBooleanArray(final boolean[] bools) {
 		super.writeArray(bools);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public ByteBuffer writeArray(final char[] chars) {
+	public B writeCharArray(final char[] chars) {
 		super.writeArray(chars);
 		
 		return INSTANCE;
 	}
 	
 	@Override
-	public ByteBuffer writeArray(final String[] strings) {
-		super.writeArray(strings);
-		
-		return INSTANCE;
-	}
-	
-	@Override
-	public ByteBuffer writeArray(final String[] strings, final Charset cs) {
-		super.writeArray(strings, cs);
-		
-		return INSTANCE;
-	}
-	
-	@Override
-	public ByteBuffer writeArray(final CharSequence[] charSeqs) {
-		super.writeArray(charSeqs);
-		
-		return INSTANCE;
-	}
-	
-	@Override
-	public <T extends Enum<T>> ByteBuffer writeArray(final Enum<T>[] enums) {
-		super.writeArray(enums);
+	public <T extends ByteBuffer, O> B writeArray(final O[] objs, final BiConsumer<T, O> writer) {
+		super.writeArray(objs, writer);
 		
 		return INSTANCE;
 	}

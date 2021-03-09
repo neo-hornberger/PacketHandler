@@ -16,9 +16,7 @@ import java.time.*;
 import java.util.*;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -79,16 +77,14 @@ public class ByteBuffer {
 		addToCache(Period.class, ByteBuffer::writePeriod);
 		addToCache(Pattern.class, ByteBuffer::writePattern);
 		addToCache(IByteBufferable.class, ByteBuffer::write);
-		addToCache(byte[].class, ByteBuffer::writeArray);
-		addToCache(short[].class, ByteBuffer::writeArray);
-		addToCache(int[].class, ByteBuffer::writeArray);
-		addToCache(long[].class, ByteBuffer::writeArray);
-		addToCache(float[].class, ByteBuffer::writeArray);
-		addToCache(double[].class, ByteBuffer::writeArray);
-		addToCache(boolean[].class, ByteBuffer::writeArray);
-		addToCache(char[].class, ByteBuffer::writeArray);
-		addToCache(String[].class, ByteBuffer::writeArray);
-		addToCache(Enum[].class, ByteBuffer::writeArray);
+		addToCache(byte[].class, ByteBuffer::writeByteArray);
+		addToCache(short[].class, ByteBuffer::writeShortArray);
+		addToCache(int[].class, ByteBuffer::writeIntArray);
+		addToCache(long[].class, ByteBuffer::writeLongArray);
+		addToCache(float[].class, ByteBuffer::writeFloatArray);
+		addToCache(double[].class, ByteBuffer::writeDoubleArray);
+		addToCache(boolean[].class, ByteBuffer::writeBooleanArray);
+		addToCache(char[].class, ByteBuffer::writeCharArray);
 	}
 	
 	public ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
@@ -103,16 +99,19 @@ public class ByteBuffer {
 	private ByteBufferInputStream in;
 	private ByteBufferOutputStream out;
 	
+	private boolean writeLock = false, readLock = false;
+	
 	/**
-	 * Constructs a new empty {@link ByteBuffer}.
+	 * Constructs a new empty instance.
 	 */
 	public ByteBuffer() {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} containing all bytes of the byte array {@code bytes}.
+	 * Constructs a new instance containing all bytes of the byte array {@code bytes}.
 	 *
 	 * @param bytes the bytes to write
+	 *
 	 * @see #write(byte[])
 	 */
 	public ByteBuffer(final byte[] bytes) {
@@ -120,9 +119,10 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} containing all bytes of the {@link ByteBuffer}.
+	 * Constructs a new instance containing all bytes of the ByteBuffer {@code buffer}.
 	 *
-	 * @param buffer the {@link ByteBuffer} of which the bytes are copied from
+	 * @param buffer the {@code ByteBuffer} of which the bytes are copied from
+	 *
 	 * @see #write(byte[])
 	 */
 	public ByteBuffer(final ByteBuffer buffer) {
@@ -136,9 +136,11 @@ public class ByteBuffer {
 	 * Writes the byte {@code b} to the buffer.
 	 *
 	 * @param b the byte to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
 	 */
 	public ByteBuffer write(final byte b) {
+		if(writeLock) throw new IllegalStateException("Writing is locked");
 		if(limit > -1 && writeCursor >= limit)
 			throw new IllegalStateException("Reached limit of " + limit + " elements");
 		
@@ -153,7 +155,9 @@ public class ByteBuffer {
 	 * Writes the int {@code b} as a byte to the buffer.
 	 *
 	 * @param b the byte to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer write(final int b) {
@@ -164,7 +168,9 @@ public class ByteBuffer {
 	 * Writes the long {@code b} as a byte to the buffer.
 	 *
 	 * @param b the byte to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	private ByteBuffer write(final long b) {
@@ -175,7 +181,9 @@ public class ByteBuffer {
 	 * Writes the bytes contained in the byte array {@code bytes} to the buffer.
 	 *
 	 * @param bytes the bytes to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer write(final byte[] bytes) {
@@ -190,7 +198,9 @@ public class ByteBuffer {
 	 *
 	 * @param bytes the bytes to write
 	 * @param n     the count of bytes to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer write(final byte[] bytes, final int n) {
@@ -204,7 +214,9 @@ public class ByteBuffer {
 	 * Writes the short {@code s} to the buffer.
 	 *
 	 * @param s the short to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer writeShort(final short s) {
@@ -223,7 +235,9 @@ public class ByteBuffer {
 	 * Writes the int {@code s} as a short to the buffer.
 	 *
 	 * @param s the short to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #writeShort(short)
 	 */
 	public ByteBuffer writeShort(final int s) {
@@ -234,7 +248,9 @@ public class ByteBuffer {
 	 * Writes the int {@code i} to the buffer.
 	 *
 	 * @param i the int to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer writeInt(final int i) {
@@ -257,7 +273,9 @@ public class ByteBuffer {
 	 * Writes the long {@code l} to the buffer.
 	 *
 	 * @param l the long to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer writeLong(final long l) {
@@ -288,7 +306,9 @@ public class ByteBuffer {
 	 * Writes the float {@code f} to the buffer.
 	 *
 	 * @param f the float to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #writeInt(int)
 	 */
 	public ByteBuffer writeFloat(final float f) {
@@ -299,7 +319,9 @@ public class ByteBuffer {
 	 * Writes the double {@code d} to the buffer.
 	 *
 	 * @param d the double to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #writeLong(long)
 	 */
 	public ByteBuffer writeDouble(final double d) {
@@ -307,11 +329,13 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the boolean {@code b} to the buffer as one byte.
+	 * Writes the boolean {@code b} as one byte to the buffer.
 	 * ({@code 0b00000001 = true} or {@code 0b00000000 = false})
 	 *
 	 * @param b the boolean to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #write(byte)
 	 */
 	public ByteBuffer writeBoolean(final boolean b) {
@@ -322,7 +346,9 @@ public class ByteBuffer {
 	 * Writes the char {@code c} to the buffer.
 	 *
 	 * @param c the char to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #writeShort(short)
 	 */
 	public ByteBuffer writeChar(final char c) {
@@ -333,13 +359,28 @@ public class ByteBuffer {
 	 * Writes the {@link String} {@code s} and its length to the buffer.
 	 *
 	 * @param s the {@link String} to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
+	 * @see #charset
 	 * @see #writeString(String, Charset)
 	 */
 	public ByteBuffer writeString(final String s) {
 		return writeString(s, charset);
 	}
 	
+	/**
+	 * Writes the {@link String} {@code s} and its length to the buffer.
+	 *
+	 * @param s       the {@link String} to write
+	 * @param charset the {@link Charset} to be used to encode the {@link String}
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeInt(int)
+	 * @see String#getBytes(Charset)
+	 * @see #write(byte[])
+	 */
 	public ByteBuffer writeString(final String s, final Charset charset) {
 		final byte[] bytes = s.getBytes(charset);
 		
@@ -354,16 +395,29 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the name of the {@link Enum} value {@code e} to the buffer as a string.
+	 * Writes the name of the {@linkplain Enum enum value} {@code e} as a string to the buffer.
 	 *
 	 * @param e the enum value to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
+	 * @see Enum#name()
 	 * @see #writeNullTerminatedString(String)
 	 */
 	public <T extends Enum<T>> ByteBuffer writeEnum(final Enum<T> e) {
 		return writeNullTerminatedString(e.name());
 	}
 	
+	/**
+	 * Writes the unsigned byte {@code ubyte} to the buffer.
+	 *
+	 * @param ubyte the unsigned byte to write
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if {@code ubyte} exceeds the range [0;{@value #MAX_UBYTE}]
+	 * @see #write(int)
+	 */
 	public ByteBuffer writeUnsignedByte(final int ubyte) {
 		if(ubyte < 0 || ubyte > MAX_UBYTE) {
 			write(0);
@@ -374,6 +428,16 @@ public class ByteBuffer {
 		return write(ubyte);
 	}
 	
+	/**
+	 * Writes the unsigned short {@code ushort} to the buffer.
+	 *
+	 * @param ushort the unsigned short to write
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if {@code ushort} exceeds the range [0;{@value #MAX_USHORT}]
+	 * @see #writeShort(int)
+	 */
 	public ByteBuffer writeUnsignedShort(final int ushort) {
 		if(ushort < 0 || ushort > MAX_USHORT) {
 			writeShort(0);
@@ -384,6 +448,16 @@ public class ByteBuffer {
 		return writeShort(ushort);
 	}
 	
+	/**
+	 * Writes the unsigned int {@code uint} to the buffer.
+	 *
+	 * @param uint the unsigned int to write
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if {@code uint} exceeds the range [0;{@value #MAX_UINT}]
+	 * @see #writeInt(int)
+	 */
 	public ByteBuffer writeUnsignedInt(final long uint) {
 		if(uint < 0 || uint > MAX_UINT) {
 			writeInt(0);
@@ -394,24 +468,60 @@ public class ByteBuffer {
 		return writeInt((int) uint);
 	}
 	
+	/**
+	 * Writes the int {@code vi} in the variable-length format to the buffer.
+	 *
+	 * @param vi the int to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQInt#encodeSLE(ByteBuffer, int)
+	 */
 	public ByteBuffer writeVarInt(final int vi) {
 		VLQHelper.VLQInt.encodeSLE(this, vi);
 		
 		return this;
 	}
 	
+	/**
+	 * Writes the long {@code vl} in the variable-length format to the buffer.
+	 *
+	 * @param vl the long to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQLong#encodeSLE(ByteBuffer, long)
+	 */
 	public ByteBuffer writeVarLong(final long vl) {
 		VLQHelper.VLQLong.encodeSLE(this, vl);
 		
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link BigInteger} {@code vbi} in the variable-length format to the buffer.
+	 *
+	 * @param vbi the {@link BigInteger} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQBigInt#encodeSLE(ByteBuffer, BigInteger)
+	 */
 	public ByteBuffer writeVarBigInt(final BigInteger vbi) {
 		VLQHelper.VLQBigInt.encodeSLE(this, vbi);
 		
 		return this;
 	}
 	
+	/**
+	 * Writes the non-negative int {@code vi} in the variable-length format to the buffer.
+	 *
+	 * @param vi the non-negative int to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQInt#encodeULE(ByteBuffer, int)
+	 */
 	public ByteBuffer writeUnsignedVarInt(final int vi) {
 		VLQHelper.VLQInt.encodeULE(this, vi);
 		
@@ -428,18 +538,47 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the non-negative long {@code vl} in the variable-length format to the buffer.
+	 *
+	 * @param vl the non-negative long to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQLong#encodeULE(ByteBuffer, long)
+	 */
 	public ByteBuffer writeUnsignedVarLong(final long vl) {
 		VLQHelper.VLQLong.encodeULE(this, vl);
 		
 		return this;
 	}
 	
+	/**
+	 * Writes the non-negative {@link BigInteger} {@code vbi} in the variable-length format to the buffer.
+	 *
+	 * @param vbi the non-negative {@link BigInteger} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see VLQHelper.VLQBigInt#encodeULE(ByteBuffer, BigInteger)
+	 */
 	public ByteBuffer writeUnsignedVarBigInt(final BigInteger vbi) {
 		VLQHelper.VLQBigInt.encodeULE(this, vbi);
 		
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link BigInteger} {@code bi} as a length-prefixed byte array to the buffer.
+	 *
+	 * @param bi the {@link BigInteger} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #writeUnsignedVarInt(int)
+	 * @see BigInteger#toByteArray()
+	 * @see #write(byte[])
+	 */
 	public ByteBuffer writeBigInteger(final BigInteger bi) {
 		final byte[] bytes = bi.toByteArray();
 		
@@ -449,6 +588,18 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link BigDecimal} {@code bd} as a scaled {@link BigInteger} to the buffer.
+	 *
+	 * @param bd the {@link BigDecimal} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see BigDecimal#unscaledValue()
+	 * @see #writeVarBigInt(BigInteger)
+	 * @see BigDecimal#scale()
+	 * @see #writeVarInt(int)
+	 */
 	public ByteBuffer writeBigDecimal(final BigDecimal bd) {
 		writeBigInteger(bd.unscaledValue());
 		writeVarInt(bd.scale());
@@ -457,10 +608,35 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link String} {@code s} to the buffer.
+	 *
+	 * @param s      the {@link String} to write
+	 * @param length the exact number of bytes to write
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if the number of bytes of the {@link String} differ from {@code length}
+	 * @see #charset
+	 * @see #writeFixedLengthString(String, Charset, int)
+	 */
 	public ByteBuffer writeFixedLengthString(final String s, final int length) {
 		return writeFixedLengthString(s, charset, length);
 	}
 	
+	/**
+	 * Writes the {@link String} {@code s} to the buffer.
+	 *
+	 * @param s       the {@link String} to write
+	 * @param charset the {@link Charset} to be used to encode the {@link String}
+	 * @param length  the exact number of bytes to write
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if the number of bytes of the {@link String} differ from {@code length}
+	 * @see String#getBytes(Charset)
+	 * @see #write(byte[])
+	 */
 	public ByteBuffer writeFixedLengthString(final String s, final Charset charset, final int length) {
 		final byte[] bytes = s.getBytes(charset);
 		
@@ -477,10 +653,32 @@ public class ByteBuffer {
 		return write(bytes);
 	}
 	
+	/**
+	 * Writes the {@link String} {@code s} to the buffer.
+	 *
+	 * @param s the {@link String} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see #charset
+	 * @see #writeNullTerminatedString(String, Charset)
+	 */
 	public ByteBuffer writeNullTerminatedString(final String s) {
 		return writeNullTerminatedString(s, charset);
 	}
 	
+	/**
+	 * Writes the {@link String} {@code s} to the buffer.
+	 *
+	 * @param s       the {@link String} to write
+	 * @param charset the {@link Charset} to be used to encode the {@link String}
+	 *
+	 * @return the current instance
+	 *
+	 * @throws IllegalArgumentException if the {@link String} contains a null-byte
+	 * @see String#getBytes(Charset)
+	 * @see #write(byte[])
+	 */
 	public ByteBuffer writeNullTerminatedString(final String s, final Charset charset) {
 		final byte[] bytes = s.getBytes(charset);
 		
@@ -496,16 +694,18 @@ public class ByteBuffer {
 		
 		write(0);
 		
-		if(foundNUL) throw new IllegalStateException("String representation cannot contain NUL");
+		if(foundNUL) throw new IllegalArgumentException("String representation cannot contain NUL");
 		
 		return this;
 	}
 	
 	/**
-	 * Writes the {@link UUID} {@code u} to the buffer as two longs.
+	 * Writes the {@link UUID} {@code u} as two longs to the buffer.
 	 *
 	 * @param u the {@link UUID} to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @see #writeLong(long)
 	 */
 	public ByteBuffer writeUUID(final UUID u) {
@@ -521,12 +721,16 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes the {@link Instant} {@code i} to the buffer as one long and one int.
+	 * Writes the {@link Instant} {@code i} as one long and one unsigned {@linkplain VLQHelper.VLQInt var-int} to the buffer.
 	 *
 	 * @param i the {@link Instant} to write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
+	 * @see Instant#getEpochSecond()
 	 * @see #writeLong(long)
-	 * @see #writeVarInt(int)
+	 * @see Instant#getNano()
+	 * @see #writeUnsignedVarInt(int)
 	 */
 	public ByteBuffer writeInstant(final Instant i) {
 		if(byteOrder.isBigEndian()) {
@@ -540,6 +744,19 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link LocalDate} {@code ld} as one {@linkplain VLQHelper.VLQInt var-int} and two bytes to the buffer.
+	 *
+	 * @param ld the {@link LocalDate} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see LocalDate#getYear()
+	 * @see #writeVarInt(int)
+	 * @see LocalDate#getMonthValue()
+	 * @see LocalDate#getDayOfMonth()
+	 * @see #write(int)
+	 */
 	public ByteBuffer writeLocalDate(final LocalDate ld) {
 		if(byteOrder.isBigEndian()) {
 			writeVarInt(ld.getYear());
@@ -554,6 +771,20 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link LocalTime} {@code lt} as three bytes and one unsigned {@linkplain VLQHelper.VLQInt var-int} to the buffer.
+	 *
+	 * @param lt the {@link LocalTime} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see LocalTime#getHour()
+	 * @see LocalTime#getMinute()
+	 * @see LocalTime#getSecond()
+	 * @see #write(int)
+	 * @see LocalTime#getNano()
+	 * @see #writeUnsignedVarInt(int)
+	 */
 	public ByteBuffer writeLocalTime(final LocalTime lt) {
 		if(byteOrder.isBigEndian()) {
 			write(lt.getHour());
@@ -570,6 +801,18 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link LocalDateTime} {@code ldt} as a {@link LocalDate} and a {@link LocalTime} to the buffer.
+	 *
+	 * @param ldt the {@link LocalDateTime} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see LocalDateTime#toLocalDate()
+	 * @see #writeLocalDate(LocalDate)
+	 * @see LocalDateTime#toLocalTime()
+	 * @see #writeLocalTime(LocalTime)
+	 */
 	public ByteBuffer writeLocalDateTime(final LocalDateTime ldt) {
 		if(byteOrder.isBigEndian()) {
 			writeLocalDate(ldt.toLocalDate());
@@ -582,10 +825,32 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link ZoneOffset} {@code zo} as an int to the buffer.
+	 *
+	 * @param zo the {@link ZoneOffset} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see ZoneOffset#getTotalSeconds()
+	 * @see #writeInt(int)
+	 */
 	public ByteBuffer writeZoneOffset(final ZoneOffset zo) {
 		return writeInt(zo.getTotalSeconds());
 	}
 	
+	/**
+	 * Writes the {@link OffsetDateTime} {@code odt} as a {@link LocalDateTime} and a {@link ZoneOffset} to the buffer.
+	 *
+	 * @param odt the {@link OffsetDateTime} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see OffsetDateTime#toLocalDateTime()
+	 * @see #writeLocalDateTime(LocalDateTime)
+	 * @see OffsetDateTime#getOffset()
+	 * @see #writeZoneOffset(ZoneOffset)
+	 */
 	public ByteBuffer writeOffsetDateTime(final OffsetDateTime odt) {
 		writeLocalDateTime(odt.toLocalDateTime());
 		writeZoneOffset(odt.getOffset());
@@ -593,10 +858,34 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link ZoneId} {@code zi} as a null-terminated string to the buffer.
+	 *
+	 * @param zi the {@link ZoneId} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see ZoneId#getId()
+	 * @see #writeNullTerminatedString(String)
+	 */
 	public ByteBuffer writeZoneId(final ZoneId zi) {
 		return writeNullTerminatedString(zi.getId());
 	}
 	
+	/**
+	 * Writes the {@link ZonedDateTime} {@code zdt} as a {@link LocalDateTime}, a {@link ZoneId} and a {@link ZoneOffset} to the buffer.
+	 *
+	 * @param zdt the {@link ZonedDateTime} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see ZonedDateTime#toLocalDateTime()
+	 * @see #writeLocalDateTime(LocalDateTime)
+	 * @see ZonedDateTime#getZone()
+	 * @see #writeZoneId(ZoneId)
+	 * @see ZonedDateTime#getOffset()
+	 * @see #writeZoneOffset(ZoneOffset)
+	 */
 	public ByteBuffer writeZonedDateTime(final ZonedDateTime zdt) {
 		writeLocalDateTime(zdt.toLocalDateTime());
 		writeZoneId(zdt.getZone());
@@ -605,6 +894,18 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link Duration} {@code d} as one {@linkplain VLQHelper.VLQLong var-long} and one {@linkplain VLQHelper.VLQInt var-int} to the buffer.
+	 *
+	 * @param d the {@link Duration} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see Duration#getSeconds()
+	 * @see #writeVarLong(long)
+	 * @see Duration#getNano()
+	 * @see #writeVarInt(int)
+	 */
 	public ByteBuffer writeDuration(final Duration d) {
 		if(byteOrder.isBigEndian()) {
 			writeVarLong(d.getSeconds());
@@ -617,6 +918,18 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link Period} {@code p} as three {@linkplain VLQHelper.VLQInt var-ints} to the buffer.
+	 *
+	 * @param p the {@link Period} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see Period#getYears()
+	 * @see Period#getMonths()
+	 * @see Period#getDays()
+	 * @see #writeVarInt(int)
+	 */
 	public ByteBuffer writePeriod(final Period p) {
 		if(byteOrder.isBigEndian()) {
 			writeVarInt(p.getYears());
@@ -631,6 +944,18 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link Pattern} {@code p} as a {@link String} and an unsigned {@linkplain VLQHelper.VLQInt var-int} to the buffer.
+	 *
+	 * @param p the {@link Pattern} to write
+	 *
+	 * @return the current instance
+	 *
+	 * @see Pattern#pattern()
+	 * @see #writeString(String)
+	 * @see Pattern#flags()
+	 * @see #writeUnsignedVarInt(int)
+	 */
 	public ByteBuffer writePattern(final Pattern p) {
 		writeString(p.pattern());
 		writeUnsignedVarInt(p.flags());
@@ -638,6 +963,16 @@ public class ByteBuffer {
 		return this;
 	}
 	
+	/**
+	 * Writes the {@link IByteBufferable} {@code obj} to the buffer.
+	 *
+	 * @param obj the {@link IByteBufferable} to write
+	 * @param <B> the {@code ByteBuffer} type the current instance will be casted to
+	 *
+	 * @return the current instance
+	 *
+	 * @see IByteBufferable#toBuffer(B)
+	 */
 	@SuppressWarnings("unchecked")
 	public <B extends ByteBuffer> ByteBuffer write(final IByteBufferable<B> obj) {
 		obj.toBuffer((B) this);
@@ -645,14 +980,14 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final byte[] bytes) {
+	public ByteBuffer writeByteArray(final byte[] bytes) {
 		writeUnsignedVarInt(bytes.length);
 		write(bytes);
 		
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final short[] shorts) {
+	public ByteBuffer writeShortArray(final short[] shorts) {
 		writeUnsignedVarInt(shorts.length);
 		
 		for(final short s : shorts)
@@ -661,7 +996,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final int[] ints) {
+	public ByteBuffer writeIntArray(final int[] ints) {
 		writeUnsignedVarInt(ints.length);
 		
 		for(final int i : ints)
@@ -670,7 +1005,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final long[] longs) {
+	public ByteBuffer writeLongArray(final long[] longs) {
 		writeUnsignedVarInt(longs.length);
 		
 		for(final long l : longs)
@@ -679,7 +1014,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final float[] floats) {
+	public ByteBuffer writeFloatArray(final float[] floats) {
 		writeUnsignedVarInt(floats.length);
 		
 		for(final float f : floats)
@@ -688,7 +1023,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final double[] doubles) {
+	public ByteBuffer writeDoubleArray(final double[] doubles) {
 		writeUnsignedVarInt(doubles.length);
 		
 		for(final double d : doubles)
@@ -697,7 +1032,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final boolean[] bools) {
+	public ByteBuffer writeBooleanArray(final boolean[] bools) {
 		writeUnsignedVarInt(bools.length);
 		
 		for(final boolean b : bools)
@@ -706,7 +1041,7 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final char[] chars) {
+	public ByteBuffer writeCharArray(final char[] chars) {
 		writeUnsignedVarInt(chars.length);
 		
 		for(final char c : chars)
@@ -715,38 +1050,14 @@ public class ByteBuffer {
 		return this;
 	}
 	
-	public ByteBuffer writeArray(final String[] strings) {
-		writeUnsignedVarInt(strings.length);
+	@SuppressWarnings("unchecked")
+	public <B extends ByteBuffer, T> ByteBuffer writeArray(final T[] objs, final BiConsumer<B, T> writer) {
+		writeUnsignedVarInt(objs.length);
 		
-		for(final String s : strings)
-			writeString(s);
-		
-		return this;
-	}
-	
-	public ByteBuffer writeArray(final String[] strings, final Charset cs) {
-		writeUnsignedVarInt(strings.length);
-		
-		for(final String s : strings)
-			writeString(s, charset);
-		
-		return this;
-	}
-	
-	public ByteBuffer writeArray(final CharSequence[] charSeqs) {
-		writeUnsignedVarInt(charSeqs.length);
-		
-		for(final CharSequence cs : charSeqs)
-			writeString(cs);
-		
-		return this;
-	}
-	
-	public <T extends Enum<T>> ByteBuffer writeArray(final Enum<T>[] enums) {
-		writeUnsignedVarInt(enums.length);
-		
-		for(final Enum<?> e : enums)
-			writeEnum(e);
+		lockReading((B) this, buf -> {
+			for(final T obj : objs)
+				writer.accept(buf, obj);
+		});
 		
 		return this;
 	}
@@ -840,6 +1151,7 @@ public class ByteBuffer {
 	 * @return the byte read
 	 */
 	public byte read() {
+		if(readLock) throw new IllegalStateException("Reading is locked");
 		if(readCursor >= bytes.size) throw new IllegalStateException("There are no bytes to read");
 		
 		return bytes.get(readCursor++);
@@ -849,7 +1161,9 @@ public class ByteBuffer {
 	 * Reads {@code n} bytes from the buffer. If {@code n == -1} all bytes are read.
 	 *
 	 * @param n the count of the bytes to read
+	 *
 	 * @return an array of the bytes read
+	 *
 	 * @see #read()
 	 * @see #readAll()
 	 */
@@ -868,7 +1182,9 @@ public class ByteBuffer {
 	 * Reads bytes until {@code toByte} is read.
 	 *
 	 * @param toByte the byte to read to
+	 *
 	 * @return an array of the bytes read
+	 *
 	 * @see #read()
 	 */
 	public byte[] readTo(final byte toByte) {
@@ -885,6 +1201,8 @@ public class ByteBuffer {
 	 * Reads all bytes from the buffer.
 	 *
 	 * @return an array of the bytes read
+	 *
+	 * @see #getSize()
 	 * @see #read(int)
 	 */
 	public byte[] readAll() {
@@ -895,6 +1213,7 @@ public class ByteBuffer {
 	 * Reads two bytes from the buffer and interprets them as a short.
 	 *
 	 * @return the short read
+	 *
 	 * @see #readUnsignedByte()
 	 */
 	@SuppressWarnings("IfStatementWithIdenticalBranches")
@@ -911,6 +1230,7 @@ public class ByteBuffer {
 	 * Reads four bytes from the buffer and interprets them as an int.
 	 *
 	 * @return the int read
+	 *
 	 * @see #readUnsignedByte()
 	 */
 	public int readInt() {
@@ -927,6 +1247,7 @@ public class ByteBuffer {
 	 * Reads eight bytes from the buffer and interprets them as a long.
 	 *
 	 * @return the long read
+	 *
 	 * @see #readUnsignedByte()
 	 */
 	public long readLong() {
@@ -944,6 +1265,7 @@ public class ByteBuffer {
 	 * Reads one int from the buffer and interprets it as a float.
 	 *
 	 * @return the float read
+	 *
 	 * @see #readInt()
 	 */
 	public float readFloat() {
@@ -954,6 +1276,7 @@ public class ByteBuffer {
 	 * Reads one long from the buffer and interprets it as a double.
 	 *
 	 * @return the double read
+	 *
 	 * @see #readLong()
 	 */
 	public double readDouble() {
@@ -964,6 +1287,7 @@ public class ByteBuffer {
 	 * Reads one byte from the buffer and interprets it as a boolean.
 	 *
 	 * @return the boolean read
+	 *
 	 * @see #read()
 	 */
 	public boolean readBoolean() {
@@ -974,6 +1298,7 @@ public class ByteBuffer {
 	 * Reads one short from the buffer and interprets it as a char.
 	 *
 	 * @return the char read
+	 *
 	 * @see #readShort()
 	 */
 	public char readChar() {
@@ -985,10 +1310,10 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads one int {@code n} and {@code n} bytes from the buffer and
-	 * interprets them as a {@link String}.
+	 * Reads one int {@code n} and {@code n} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @return the {@link String} read
+	 *
 	 * @see #readInt()
 	 * @see #readFixedLengthString(int, Charset)
 	 */
@@ -997,12 +1322,13 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads a string from the buffer and interprets it as an {@link Enum} value
-	 * of the class {@code e}.
+	 * Reads a string from the buffer and interprets it as an {@link Enum} value of the class {@code e}.
 	 *
-	 * @param <T> the type of the enum to read
+	 * @param <T> the type of the {@link Enum} to read
 	 * @param e   the class of the {@link Enum}
+	 *
 	 * @return the {@link Enum} value read
+	 *
 	 * @see #readNullTerminatedString()
 	 */
 	public <T extends Enum<T>> T readEnum(final Class<T> e) {
@@ -1057,7 +1383,9 @@ public class ByteBuffer {
 	 * Reads {@code length} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @param length the number of bytes to read
+	 *
 	 * @return the {@link String} read
+	 *
 	 * @see #readFixedLengthString(int, Charset)
 	 */
 	public String readFixedLengthString(final int length) {
@@ -1068,7 +1396,9 @@ public class ByteBuffer {
 	 * Reads {@code length} bytes from the buffer and interprets them as a {@link String}.
 	 *
 	 * @param length the number of bytes to read
+	 *
 	 * @return the {@link String} read
+	 *
 	 * @see #read(int)
 	 * @see String#String(byte[], Charset)
 	 */
@@ -1088,6 +1418,7 @@ public class ByteBuffer {
 	 * Reads two longs from the buffer and interprets them as an {@link UUID}.
 	 *
 	 * @return the {@link UUID} read
+	 *
 	 * @see #readLong()
 	 */
 	public UUID readUUID() {
@@ -1108,6 +1439,7 @@ public class ByteBuffer {
 	 * Reads one long and one unsigned int from the buffer and interprets them as an {@link Instant}.
 	 *
 	 * @return the {@link Instant} read
+	 *
 	 * @see #readLong()
 	 * @see #readUnsignedVarInt()
 	 * @see Instant#ofEpochSecond(long, long)
@@ -1237,6 +1569,116 @@ public class ByteBuffer {
 		return obj;
 	}
 	
+	public byte[] readByteArray() {
+		final int length = readUnsignedVarInt();
+		final byte[] bytes = new byte[length];
+		
+		for(int i = 0; i < length; i++)
+			bytes[i] = read();
+		
+		return bytes;
+	}
+	
+	public short[] readShortArray() {
+		final int length = readUnsignedVarInt();
+		final short[] shorts = new short[length];
+		
+		for(int i = 0; i < length; i++)
+			shorts[i] = readShort();
+		
+		return shorts;
+	}
+	
+	public int[] readIntArray() {
+		final int length = readUnsignedVarInt();
+		final int[] ints = new int[length];
+		
+		for(int i = 0; i < length; i++)
+			ints[i] = readInt();
+		
+		return ints;
+	}
+	
+	public long[] readLongArray() {
+		final int length = readUnsignedVarInt();
+		final long[] longs = new long[length];
+		
+		for(int i = 0; i < length; i++)
+			longs[i] = readLong();
+		
+		return longs;
+	}
+	
+	public float[] readFloatArray() {
+		final int length = readUnsignedVarInt();
+		final float[] floats = new float[length];
+		
+		for(int i = 0; i < length; i++)
+			floats[i] = readFloat();
+		
+		return floats;
+	}
+	
+	public double[] readDoubleArray() {
+		final int length = readUnsignedVarInt();
+		final double[] doubles = new double[length];
+		
+		for(int i = 0; i < length; i++)
+			doubles[i] = readDouble();
+		
+		return doubles;
+	}
+	
+	public boolean[] readBooleanArray() {
+		final int length = readUnsignedVarInt();
+		final boolean[] bools = new boolean[length];
+		
+		for(int i = 0; i < length; i++)
+			bools[i] = readBoolean();
+		
+		return bools;
+	}
+	
+	public char[] readCharArray() {
+		final int length = readUnsignedVarInt();
+		final char[] chars = new char[length];
+		
+		for(int i = 0; i < length; i++)
+			chars[i] = readChar();
+		
+		return chars;
+	}
+	
+	public <B extends ByteBuffer, T> T[] readArray(final Class<T> clazz, final Function<B, T> reader) {
+		return readArray(arrayFromClassGenerator(clazz), reader);
+	}
+	
+	public <B extends ByteBuffer, T> T[] readArray(final Class<T> clazz, final BiFunction<B, Integer, T> reader) {
+		return readArray(arrayFromClassGenerator(clazz), reader);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> IntFunction<T[]> arrayFromClassGenerator(final Class<T> clazz) {
+		return length -> (T[]) Array.newInstance(clazz, length);
+	}
+	
+	public <B extends ByteBuffer, T> T[] readArray(final IntFunction<T[]> generator, final Function<B, T> reader) {
+		return this.<B, T>readArray(generator, (buf, _index_) -> reader.apply(buf));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <B extends ByteBuffer, T> T[] readArray(final IntFunction<T[]> generator, final BiFunction<B, Integer, T> reader) {
+		final int length = readUnsignedVarInt();
+		final T[] array = generator.apply(length);
+		
+		lockWriting((B) this, buf -> {
+			for(int i = 0; i < length; i++)
+				array[i] = reader.apply(buf, i);
+		});
+		
+		return array;
+	}
+	
 	public ByteBuffer skip(final int n) {
 		if(n < 0) throw new IllegalArgumentException("Cannot skip a negative amount of bytes");
 		
@@ -1247,23 +1689,29 @@ public class ByteBuffer {
 	}
 	
 	public ByteBuffer mark() {
+		if(readLock) throw new IllegalStateException("Reading is locked");
+		
 		mark = readCursor;
 		
 		return this;
 	}
 	
 	public ByteBuffer reset() {
+		if(readLock) throw new IllegalStateException("Reading is locked");
+		
 		readCursor = mark;
 		
 		return this;
 	}
 	
 	/**
-	 * Clears this {@link ByteBuffer} and sets both cursors to zero.
+	 * Clears this instance and sets both cursors to zero.
 	 *
-	 * @return the current {@link ByteBuffer} instance
+	 * @return the current instance
 	 */
 	public ByteBuffer clear() {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.clear();
 		
 		writeCursor = 0;
@@ -1273,52 +1721,66 @@ public class ByteBuffer {
 	}
 	
 	public ByteBuffer reverse() {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.reverse();
 		
 		return this;
 	}
 	
 	/**
-	 * Encodes this {@link ByteBuffer} with BASE64.
+	 * Encodes this instance with {@linkplain Base64 BASE64}.
 	 *
-	 * @return the current {@link ByteBuffer} instance
+	 * @return the current instance
+	 *
 	 * @see Base64.Encoder#encode(byte[])
 	 */
 	public ByteBuffer encode() {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.encode();
 		
 		return this;
 	}
 	
 	/**
-	 * Decodes this {@link ByteBuffer} with BASE64.
+	 * Decodes this instance with {@linkplain Base64 BASE64}.
 	 *
-	 * @return the current {@link ByteBuffer} instance
+	 * @return the current instance
+	 *
 	 * @see Base64.Decoder#decode(byte[])
 	 */
 	public ByteBuffer decode() {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.decode();
 		
 		return this;
 	}
 	
 	public ByteBuffer encrypt(final Encryption encryption) {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.encrypt(encryption);
 		
 		return this;
 	}
 	
 	public ByteBuffer decrypt(final Encryption encryption) {
+		if(writeLock || readLock) throw new IllegalStateException("Writing or reading is locked");
+		
 		bytes.decrypt(encryption);
 		
 		return this;
 	}
 	
 	/**
-	 * Transfers all bytes of this {@link ByteBuffer} to the {@link ByteBuffer} {@code buf}.
+	 * Transfers all bytes of this instance to the {@code ByteBuffer buf}.
 	 *
-	 * @param buf the {@link ByteBuffer} to transfer to
-	 * @return the current {@link ByteBuffer} instance
+	 * @param buf the instance to transfer to
+	 *
+	 * @return the current instance
+	 *
 	 * @see #readAll()
 	 */
 	public ByteBuffer transferTo(final ByteBuffer buf) {
@@ -1328,10 +1790,12 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Transfers all bytes of th {@link ByteBuffer} {@code buf} to this {@link ByteBuffer}.
+	 * Transfers all bytes of the {@code ByteBuffer buf} to this instance.
 	 *
-	 * @param buf the {@link ByteBuffer} to transfer from
-	 * @return the current {@link ByteBuffer} instance
+	 * @param buf the instance to transfer from
+	 *
+	 * @return the current instance
+	 *
 	 * @see #readAll()
 	 */
 	public ByteBuffer transferFrom(final ByteBuffer buf) {
@@ -1339,10 +1803,12 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Writes all non-written bytes of this {@link ByteBuffer} to the {@link OutputStream} {@code out}.
+	 * Writes all non-written bytes of this instance to the {@link OutputStream} {@code out}.
 	 *
 	 * @param out the {@link OutputStream} to which it will write
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @throws IOException if an I/O error occurs
 	 * @see #readAll()
 	 */
@@ -1357,7 +1823,9 @@ public class ByteBuffer {
 	 * Reads all bytes from the {@link InputStream} {@code in} and stores it in the current instance.
 	 *
 	 * @param in the {@link InputStream} from which it will read
-	 * @return the current {@link ByteBuffer} instance
+	 *
+	 * @return the current instance
+	 *
 	 * @throws IOException if an I/O error occurs
 	 */
 	public ByteBuffer readFromInputStream(final InputStream in) throws IOException {
@@ -1388,7 +1856,8 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * @return whether this {@link ByteBuffer} is empty
+	 * @return whether this buffer is empty
+	 *
 	 * @see #getSize()
 	 */
 	public boolean isEmpty() {
@@ -1396,10 +1865,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Sets the limit of this {@link ByteBuffer}.
+	 * Sets the limit of this instance.
 	 *
-	 * @param limit the new limit of this {@link ByteBuffer}
-	 * @return the current {@link ByteBuffer} instance
+	 * @param limit the new limit of this instance
+	 *
+	 * @return the current instance
 	 */
 	public ByteBuffer setLimit(final int limit) {
 		this.limit = limit;
@@ -1410,19 +1880,20 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Gets the size of this {@link ByteBuffer}.
+	 * Gets the size of this buffer.
 	 *
-	 * @return the size of this {@link ByteBuffer}
+	 * @return the size of this buffer
 	 */
 	public int getSize() {
 		return bytes.size() - readCursor;
 	}
 	
 	/**
-	 * Sets the size of this {@link ByteBuffer}.
+	 * Sets the size of this buffer.
 	 *
-	 * @param size the new size of this {@link ByteBuffer}
-	 * @return the current {@link ByteBuffer} instance
+	 * @param size the new size of this buffer
+	 *
+	 * @return the current instance
 	 */
 	public ByteBuffer setSize(final int size) {
 		while(getSize() < size)
@@ -1439,7 +1910,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Gets all bytes of this {@link ByteBuffer}.
+	 * Gets all bytes of this instance.
 	 *
 	 * @return all bytes
 	 */
@@ -1448,7 +1919,7 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Returns all non-written bytes of this {@link ByteBuffer} in form of a byte array.
+	 * Returns all non-written bytes of this instance in form of a byte array.
 	 *
 	 * @return the non-written bytes
 	 */
@@ -1489,10 +1960,11 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this {@link ByteBuffer} instance encoded with BASE64.
+	 * Constructs a new instance containing all bytes of this instance encoded with {@linkplain Base64 BASE64}.
 	 *
-	 * @return the newly constructed {@link ByteBuffer} instance
-	 * @see #ByteBuffer(ByteBuffer)
+	 * @return the newly constructed instance
+	 *
+	 * @see #copy()
 	 * @see #encode()
 	 */
 	public ByteBuffer toEncoded() {
@@ -1500,9 +1972,10 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Constructs a new {@link ByteBuffer} instance containing all bytes of this {@link ByteBuffer} instance decoded with BASE64.
+	 * Constructs a new instance containing all bytes of this instance decoded with {@linkplain Base64 BASE64}.
 	 *
-	 * @return the newly constructed {@link ByteBuffer} instance
+	 * @return the newly constructed instance
+	 *
 	 * @see #copy()
 	 * @see #decode()
 	 */
@@ -1519,9 +1992,10 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Copies this {@link ByteBuffer} instance by constructing a new one.
+	 * Copies this instance by constructing a new one.
 	 *
-	 * @return the newly constructed {@link ByteBuffer}
+	 * @return the newly constructed instance
+	 *
 	 * @see #ByteBuffer(ByteBuffer)
 	 */
 	public ByteBuffer copy() {
@@ -1543,7 +2017,9 @@ public class ByteBuffer {
 	 * Reads all bytes from the {@link InputStream} {@code in} and stores them in a new instance.
 	 *
 	 * @param in the {@link InputStream} from which the method will read
-	 * @return the new {@link ByteBuffer} instance
+	 *
+	 * @return the new instance
+	 *
 	 * @throws IOException if an I/O error occurs
 	 * @see #empty()
 	 * @see #readFromInputStream(InputStream)
@@ -1579,9 +2055,10 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Returns a new empty {@link ByteBuffer}.
+	 * Returns a new empty {@code ByteBuffer}.
 	 *
-	 * @return the new empty {@link ByteBuffer} instance
+	 * @return the new empty instance
+	 *
 	 * @see #ByteBuffer()
 	 */
 	public static ByteBuffer empty() {
@@ -1783,5 +2260,21 @@ public class ByteBuffer {
 	@SuppressWarnings("unchecked")
 	protected static <B extends ByteBuffer, T> void addToCache(final Class<T> clazz, final BiConsumer<B, T> consumer) {
 		CACHE.put(clazz, (BiConsumer<ByteBuffer, Object>) consumer);
+	}
+	
+	private static <B extends ByteBuffer> void lockWriting(final B buf, final Consumer<B> consumer) {
+		((ByteBuffer) buf).writeLock = true;
+		
+		consumer.accept(buf);
+		
+		((ByteBuffer) buf).writeLock = false;
+	}
+	
+	private static <B extends ByteBuffer> void lockReading(final B buf, final Consumer<B> consumer) {
+		((ByteBuffer) buf).readLock = true;
+		
+		consumer.accept(buf);
+		
+		((ByteBuffer) buf).readLock = false;
 	}
 }

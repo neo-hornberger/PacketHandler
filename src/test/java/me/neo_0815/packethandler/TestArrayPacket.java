@@ -10,26 +10,18 @@ public class TestArrayPacket extends Packet {
 	
 	@Override
 	public void fromBuffer(final ByteBuffer buf) {
-		uuids = new UUID[buf.readUnsignedVarInt()];
-		
-		for(int i = 0; i < uuids.length; i++)
-			uuids[i] = buf.readUUID();
+		uuids = buf.readArray(UUID[]::new, ByteBuffer::readUUID);
 		
 		ints = new int[buf.readUnsignedVarInt()];
-		
 		for(int i = 0; i < ints.length; i++)
 			ints[i] = buf.readVarInt();
 	}
 	
 	@Override
 	public void toBuffer(final ByteBuffer buf) {
-		buf.writeUnsignedVarInt(uuids.length);
-		
-		for(final UUID uuid : uuids)
-			buf.writeUUID(uuid);
+		buf.writeArray(uuids, ByteBuffer::writeUUID);
 		
 		buf.writeUnsignedVarInt(uuids.length);
-		
 		for(final int i : ints)
 			buf.writeVarInt(i);
 	}
