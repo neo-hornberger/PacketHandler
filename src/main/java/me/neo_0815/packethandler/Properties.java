@@ -25,10 +25,35 @@ public class Properties {
 	@NonNull TimeUnit clearingIntervalUnit = TimeUnit.MILLISECONDS;
 	int clearingPromptCount = 5;
 	
+	/**
+	 * Checks if clearing and connection packet sending are disabled.<br>
+	 * Same as:
+	 * <hr/><blockquote><pre>
+	 * !isClearingEnabled() &amp;&amp; !isSendingConnectionPackets();
+	 * </pre></blockquote><hr/>
+	 *
+	 * @return whether clearing and connection packet sending are disabled
+	 *
+	 * @see #isClearingEnabled()
+	 * @see #isSendingConnectionPackets()
+	 */
 	public boolean isRaw() {
 		return !clearingEnabled && !sendingConnectionPackets;
 	}
 	
+	/**
+	 * Disables clearing and connection packet sending.<br>
+	 * Same as:
+	 * <hr/><blockquote><pre>
+	 * setClearingEnabled(false);
+	 * setSendingConnectionPackets(false);
+	 * </pre></blockquote><hr/>
+	 *
+	 * @return the current instance
+	 *
+	 * @see #setClearingEnabled(boolean)
+	 * @see #setSendingConnectionPackets(boolean)
+	 */
 	public Properties makeRaw() {
 		clearingEnabled = false;
 		sendingConnectionPackets = false;

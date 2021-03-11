@@ -964,7 +964,7 @@ public class ByteBuffer {
 	 *
 	 * @return the current instance
 	 *
-	 * @see IByteBufferable#toBuffer(B)
+	 * @see IByteBufferable#toBuffer(ByteBuffer)
 	 */
 	@SuppressWarnings("unchecked")
 	public <B extends ByteBuffer> ByteBuffer write(final IByteBufferable<B> obj) {
