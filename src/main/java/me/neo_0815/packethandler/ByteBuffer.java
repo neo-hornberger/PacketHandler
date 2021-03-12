@@ -3,6 +3,7 @@ package me.neo_0815.packethandler;
 import me.neo_0815.encryption.Encryption;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class ByteBuffer {
 	public ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	public Charset charset = Charset.defaultCharset();
 	
-	private final ByteList bytes = new ByteList();
+	private final ByteList bytes;
 	
 	@Getter
 	private int limit = -1, writeCursor = 0, readCursor = 0;
@@ -104,6 +105,7 @@ public class ByteBuffer {
 	 * Constructs a new empty instance.
 	 */
 	public ByteBuffer() {
+		bytes = new ByteList();
 	}
 	
 	/**
@@ -114,6 +116,8 @@ public class ByteBuffer {
 	 * @see #write(byte[])
 	 */
 	public ByteBuffer(final byte[] bytes) {
+		this();
+		
 		write(bytes);
 	}
 	
@@ -121,14 +125,11 @@ public class ByteBuffer {
 	 * Constructs a new instance containing all bytes of the ByteBuffer {@code buffer}.
 	 *
 	 * @param buffer the {@code ByteBuffer} of which the bytes are copied from
-	 *
-	 * @see #write(byte[])
 	 */
 	public ByteBuffer(final ByteBuffer buffer) {
 		byteOrder = buffer.byteOrder;
 		charset = buffer.charset;
-		
-		write(buffer.toByteArray());
+		bytes = buffer.bytes.copy();
 	}
 	
 	/**
@@ -2023,6 +2024,8 @@ public class ByteBuffer {
 	 *
 	 * @throws IOException if an I/O error occurs
 	 * @see #readAll()
+	 * @see OutputStream#write(byte[])
+	 * @see OutputStream#flush()
 	 */
 	public ByteBuffer writeToOutputStream(final OutputStream out) throws IOException {
 		out.write(readAll());
@@ -2032,13 +2035,15 @@ public class ByteBuffer {
 	}
 	
 	/**
-	 * Reads all bytes from the {@link InputStream} {@code in} and stores it in the current instance.
+	 * Reads all bytes from the {@link InputStream} {@code in} and writes them to the buffer.
 	 *
 	 * @param in the {@link InputStream} from which it will read
 	 *
 	 * @return the current instance
 	 *
 	 * @throws IOException if an I/O error occurs
+	 * @see InputStream#read()
+	 * @see #write(int)
 	 */
 	public ByteBuffer readFromInputStream(final InputStream in) throws IOException {
 		while(in.available() > 0)
@@ -2316,6 +2321,7 @@ public class ByteBuffer {
 		}
 	}
 	
+	@NoArgsConstructor
 	private static class ByteList {
 		private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 		private static final int DEFAULT_SIZE = 16;
@@ -2325,6 +2331,11 @@ public class ByteBuffer {
 		@Getter
 		@Accessors(fluent = true)
 		private int size = 0;
+		
+		public ByteList(final ByteList list) {
+			data = Arrays.copyOf(list.data, list.size);
+			size = list.size;
+		}
 		
 		private void checkBounds() {
 			final int minCap = size + 1;
@@ -2417,6 +2428,10 @@ public class ByteBuffer {
 		
 		public void decrypt(final Encryption encryption) {
 			changeData(encryption::decrypt);
+		}
+		
+		public ByteList copy() {
+			return new ByteList(this);
 		}
 	}
 	
