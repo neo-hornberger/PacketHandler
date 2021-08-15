@@ -15,3 +15,5 @@ jobs:
           distribution: adopt
       - name: Install project
         run: mvn --batch-mode install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
