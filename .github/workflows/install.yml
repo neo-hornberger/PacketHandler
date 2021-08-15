@@ -16,4 +16,4 @@ jobs:
       - name: Install project
         run: mvn --batch-mode install
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_MAVEN_TOKEN }}
