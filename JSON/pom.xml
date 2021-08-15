@@ -4,24 +4,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<artifactId>packethandler</artifactId>
-	<packaging>pom</packaging>
-	<version>SNAPSHOT-2021.08.10</version>
+	<artifactId>packethandler-json</artifactId>
+	<version>SNAPSHOT-2021.06.19</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
-		<artifactId>parent</artifactId>
-		<version>1.0</version>
+		<artifactId>packethandler</artifactId>
+		<version>SNAPSHOT-2021.06.19</version>
 	</parent>
-	<modules>
-		<module>Commons</module>
-		<module>JSON</module>
-	</modules>
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
+			<groupId>me.neo_0815</groupId>
+			<artifactId>packethandler-commons</artifactId>
+			<version>SNAPSHOT-2021.06.19</version>
+		</dependency>
+		<dependency>
+			<groupId>me.neo_0815</groupId>
+			<artifactId>json</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
