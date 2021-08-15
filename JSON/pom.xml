@@ -25,4 +25,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	
+	<repositories>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/neo-hornberger/Parent</url>
+		</repository>
+	</repositories>
 </project>
