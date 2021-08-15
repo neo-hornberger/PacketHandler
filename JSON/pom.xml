@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>me.neo_0815</groupId>
 		<artifactId>packethandler</artifactId>
-		<version>SNAPSHOT-2021.06.19</version>
+		<version>SNAPSHOT-2021.08.10</version>
 	</parent>
 	
 	<dependencies>
