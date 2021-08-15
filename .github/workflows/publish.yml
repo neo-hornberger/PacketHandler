@@ -1,0 +1,19 @@
+name: Publish
+
+on: [ workflow_dispatch ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: adopt
+      - name: Publish project
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
