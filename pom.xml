@@ -6,7 +6,7 @@
 	
 	<artifactId>packethandler</artifactId>
 	<packaging>pom</packaging>
-	<version>SNAPSHOT-2021.08.10</version>
+	<version>2021.08.16-SNAPSHOT</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
@@ -29,7 +29,15 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/neo-hornberger/maven</url>
+			<url>https://maven.pkg.github.com/neo-hornberger/*</url>
 		</repository>
 	</repositories>
+	
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/neo-hornberger/PacketHandler</url>
+		</repository>
+	</distributionManagement>
 </project>

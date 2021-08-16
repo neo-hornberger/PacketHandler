@@ -16,4 +16,4 @@ jobs:
       - name: Publish project
         run: mvn --batch-mode deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_MAVEN_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

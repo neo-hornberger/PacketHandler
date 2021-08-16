@@ -5,19 +5,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>packethandler-json</artifactId>
-	<version>SNAPSHOT-2021.06.19</version>
+	<version>2021.06.19-SNAPSHOT</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
 		<artifactId>packethandler</artifactId>
-		<version>SNAPSHOT-2021.08.10</version>
+		<version>2021.08.16-SNAPSHOT</version>
 	</parent>
 	
 	<dependencies>
 		<dependency>
 			<groupId>me.neo_0815</groupId>
 			<artifactId>packethandler-commons</artifactId>
-			<version>SNAPSHOT-2021.06.19</version>
+			<version>2021.08.16-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>me.neo_0815</groupId>
@@ -30,7 +30,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/neo-hornberger/maven</url>
+			<url>https://maven.pkg.github.com/neo-hornberger/*</url>
 		</repository>
 	</repositories>
 </project>
