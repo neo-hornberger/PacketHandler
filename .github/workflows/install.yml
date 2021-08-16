@@ -6,14 +6,26 @@ jobs:
   install:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        java_version: [ 11 ]
+        java_distribution: [ zulu, adopt-hotspot, adopt-openj9, temurin, jdkfile ]
+
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Java JDK
+      - name: Download Java JDK (Oracle ${{ matrix.java_version }})
+        uses: sormuras/download-jdk@v1
+        if: ${{ matrix.java_distribution == 'jdkfile' }}
+        with:
+          feature: ${{ matrix.java_version }}
+      - name: Setup Java JDK (${{ matrix.java_distribution }} ${{ matrix.java_version }})
         uses: actions/setup-java@v2
         with:
-          java-version: 11
-          distribution: adopt
-      - name: Install project
+          java-version: ${{ matrix.java_version }}
+          distribution: ${{ matrix.java_distribution }}
+          # "jdkFile" will be ignored by all other distributions than 'jdkfile'
+          jdkFile: ${{ env.JDK_FILE }}
+      - name: Maven Install
         run: mvn --batch-mode install
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

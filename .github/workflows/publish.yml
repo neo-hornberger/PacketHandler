@@ -8,12 +8,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Download Oracle Java JDK
+        uses: sormuras/download-jdk@v1
+        with:
+          feature: 11
       - name: Setup Java JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 11
-          distribution: adopt
-      - name: Publish project
+          java-version: ${{ env.JDK_VERSION }}
+          distribution: jdkfile
+          jdkFile: ${{ env.JDK_FILE }}
+      - name: Maven Deploy
         run: mvn --batch-mode deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
