@@ -6,12 +6,12 @@
 	
 	<artifactId>packethandler</artifactId>
 	<packaging>pom</packaging>
-	<version>2021.08.16-SNAPSHOT</version>
+	<version>2021.08.16</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0</version>
+		<version>2021.08.16</version>
 	</parent>
 	<modules>
 		<module>Commons</module>

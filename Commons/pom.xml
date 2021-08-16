@@ -5,19 +5,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>packethandler-commons</artifactId>
-	<version>2021.08.16-SNAPSHOT</version>
+	<version>2021.08.16</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
 		<artifactId>packethandler</artifactId>
-		<version>2021.08.16-SNAPSHOT</version>
+		<version>2021.08.16</version>
 	</parent>
 	
 	<dependencies>
 		<dependency>
 			<groupId>me.neo_0815</groupId>
 			<artifactId>encryption</artifactId>
-			<version>2021.06.19-SNAPSHOT</version>
+			<version>2021.08.16</version>
 		</dependency>
 	</dependencies>
 	
