@@ -9,14 +9,14 @@
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
-		<artifactId>packethandler</artifactId>
+		<artifactId>parent.packethandler</artifactId>
 		<version>2021.08.16</version>
 	</parent>
 	
 	<dependencies>
 		<dependency>
 			<groupId>me.neo_0815</groupId>
-			<artifactId>packethandler-commons</artifactId>
+			<artifactId>packethandler</artifactId>
 			<version>2021.08.16</version>
 		</dependency>
 		<dependency>

@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<artifactId>packethandler-commons</artifactId>
+	<artifactId>packethandler</artifactId>
 	<version>2021.08.16</version>
 	
 	<parent>
 		<groupId>me.neo_0815</groupId>
-		<artifactId>packethandler</artifactId>
+		<artifactId>parent.packethandler</artifactId>
 		<version>2021.08.16</version>
 	</parent>
 	
