@@ -9,23 +9,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [ 11 ]
-        java_distribution: [ zulu, adopt-hotspot, adopt-openj9, temurin, jdkfile ]
+        java_version: [ 11, 17 ]
+        # https://github.com/actions/setup-java#supported-distributions
+        java_distribution: [ temurin, zulu, liberica, microsoft, corretto, semeru ]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Download Java JDK (Oracle ${{ matrix.java_version }})
-        uses: sormuras/download-jdk@v1
-        if: ${{ matrix.java_distribution == 'jdkfile' }}
-        with:
-          feature: ${{ matrix.java_version }}
+      - uses: actions/checkout@v3
       - name: Setup Java JDK (${{ matrix.java_distribution }} ${{ matrix.java_version }})
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java_version }}
           distribution: ${{ matrix.java_distribution }}
-          # "jdkFile" will be ignored by all other distributions than 'jdkfile'
-          jdkFile: ${{ env.JDK_FILE }}
       - name: Maven Install
         run: mvn --batch-mode install
         env:
